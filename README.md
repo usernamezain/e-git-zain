@@ -2,6 +2,7 @@
  
 
 [![npm version](https://img.shields.io/npm/v/e-git-zain.svg?style=flat-square)](https://www.npmjs.com/package/e-git-zain)
+[![Status: Active](https://img.shields.io/badge/Status-Active-brightgreen.svg)](https://github.com/usernamezain/e-git-zain)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
