@@ -1,6 +1,6 @@
 {
   "name": "e-git-zain",
-  "version": "1.0.1",
+  "version": "3.0.0",
   "description": "🚀 The ultimate CLI to automate your GitHub workflow. Simplified push, undo, redo, and history management.",
   "type": "module",
   "main": "index.js",
@@ -22,9 +22,12 @@
   "author": "Zain Ali",
   "license": "MIT",
   "dependencies": {
+    "boxen": "^8.0.1",
     "chalk": "^5.3.0",
+    "chokidar": "^5.0.0",
     "commander": "^12.0.0",
     "inquirer": "^9.2.16",
+    "open": "^11.0.0",
     "ora": "^8.0.1",
     "path": "^0.12.7",
     "simple-git": "^3.22.0"
