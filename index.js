@@ -474,12 +474,31 @@ program
       const commitResult = await git.commit(commitMessage);
       const commitHash = commitResult.commit;
 
-      const currentBranch = status.current || 'main';
-      spinner.text = chalk.blue(`Pushing to remote (${currentBranch})...`);
+      let currentBranch = status.current || 'main';
+
+      // Auto-fix: rename 'master' to 'main' for modern GitHub compatibility
+      if (currentBranch === 'master') {
+        spinner.stop();
+        console.log(chalk.yellow('\n⚠️  You are on the "master" branch. GitHub now uses "main" as the default.'));
+        const { renameBranch } = await inquirer.prompt([{
+          type: 'confirm',
+          name: 'renameBranch',
+          message: 'Rename your branch to "main" before pushing? (Recommended)',
+          default: true
+        }]);
+        if (renameBranch) {
+          await git.raw(['branch', '-m', 'master', 'main']);
+          currentBranch = 'main';
+          console.log(chalk.green('✅ Branch renamed to "main".'));
+        }
+        spinner.start(chalk.blue(`Pushing to remote (${currentBranch})...`));
+      } else {
+        spinner.text = chalk.blue(`Pushing to remote (${currentBranch})...`);
+      }
       
       try {
-        await git.push('origin', currentBranch);
-        spinner.succeed(chalk.green('Code pushed successfully! 🚀'));
+        await git.push(['--set-upstream', 'origin', currentBranch]);
+        spinner.succeed(chalk.green(`Code pushed to "${currentBranch}" successfully! 🚀`));
         
         await logPushEvent(commitMessage, currentBranch, commitHash);
         
