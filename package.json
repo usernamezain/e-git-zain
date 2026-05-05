@@ -1,6 +1,6 @@
 {
   "name": "e-git-zain",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "🚀 The ultimate CLI to automate your GitHub workflow. Simplified push, undo, redo, and history management.",
   "type": "module",
   "main": "index.js",

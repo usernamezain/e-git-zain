@@ -21,8 +21,8 @@ const program = new Command();
 
 program
   .name('git-easy')
-  .description(chalk.cyan('⚡ Git-Easy v3.0.0 — The ultimate GitHub CLI companion'))
-  .version('3.0.0');
+  .description(chalk.cyan('⚡ Git-Easy v3.0.1 — The ultimate GitHub CLI companion'))
+  .version('3.0.1');
 
 // ── Core ───────────────────────────────────────────────────────────────────────
 registerPush(program);      // e-git [message]       — commit & push
