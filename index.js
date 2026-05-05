@@ -21,8 +21,8 @@ const program = new Command();
 
 program
   .name('git-easy')
-  .description(chalk.cyan('⚡ Git-Easy v3.0.1 — The ultimate GitHub CLI companion'))
-  .version('3.0.1');
+  .description(chalk.cyan('⚡ Git-Easy v3.0.2 — The ultimate GitHub CLI companion'))
+  .version('3.0.2');
 
 // ── Core ───────────────────────────────────────────────────────────────────────
 registerPush(program);      // e-git [message]       — commit & push
@@ -52,7 +52,9 @@ program.command('credits').description('✨ View the creators.').action(() => {
   console.log(`  ${chalk.yellow('Creator:')}   ${chalk.green.bold('Zain Ali')}`);
   console.log(`  ${chalk.yellow('Portfolio:')} ${chalk.cyan('https://zain-mughal.vercel.app')}`);
   console.log(`  ${chalk.yellow('Learning:')}  ${chalk.cyan('m-learn.eu.cc')}`);
-  console.log(`  ${chalk.yellow('Built by:')}  ${chalk.blue('Antigravity AI')}\n`);
+  console.log(`  ${chalk.yellow('Community:')} ${chalk.magenta.bold('mugha.dev community')}`);
+  console.log(`\n  ${chalk.yellow('✨ Join for more exclusive drops:')}`);
+  console.log(`  ${chalk.green('👉')} ${chalk.cyan.underline('https://whatsapp.com/channel/0029VbBUVv35fM5eAnXw3w2D')}\n`);
 });
 
 program.addHelpText('after', `\n${chalk.yellow('  Created with ❤️  by')} ${chalk.green.bold('Zain Ali')} & Antigravity.\n`);
