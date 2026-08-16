@@ -14,6 +14,9 @@ import registerStatus from './commands/status.js';
 import registerStash  from './commands/stash.js';
 import registerPR     from './commands/pr.js';
 import registerSchedule from './commands/schedule.js';
+import registerNuke      from './commands/nuke.js';
+import registerGhSuite   from './commands/gh-suite.js';
+import registerDashboard from './commands/dashboard.js';
 import { registerHistory, registerList, registerClear } from './commands/history.js';
 import { registerUndo, registerRedo } from './commands/undoredo.js';
 
@@ -21,8 +24,8 @@ const program = new Command();
 
 program
   .name('git-easy')
-  .description(chalk.cyan('⚡ Git-Easy v3.0.2 — The ultimate GitHub CLI companion'))
-  .version('3.0.2');
+  .description(chalk.cyan('⚡ Git-Easy v4.0.0 — The ultimate GitHub CLI companion'))
+  .version('4.0.0');
 
 // ── Core ───────────────────────────────────────────────────────────────────────
 registerPush(program);      // e-git [message]       — commit & push
@@ -38,6 +41,9 @@ registerStatus(program);    // e-git status          — rich dashboard
 registerStash(program);     // e-git stash           — stash manager
 registerPR(program);        // e-git pr              — open PR in browser
 registerSchedule(program);  // e-git schedule        — auto-commit/push
+registerNuke(program);      // e-git nuke            — force push / delete branch / delete repo
+registerGhSuite(program);   // e-git github (gh)     — PRs, issues, actions hub
+registerDashboard(program); // e-git dashboard (dash) — TUI overview
 
 // ── History & Restore ──────────────────────────────────────────────────────────
 registerHistory(program);   // e-git history
@@ -57,5 +63,5 @@ program.command('credits').description('✨ View the creators.').action(() => {
   console.log(`  ${chalk.green('👉')} ${chalk.cyan.underline('https://whatsapp.com/channel/0029VbBUVv35fM5eAnXw3w2D')}\n`);
 });
 
-program.addHelpText('after', `\n${chalk.yellow('  Created with ❤️  by')} ${chalk.green.bold('Zain Ali')} & Antigravity.\n`);
+program.addHelpText('after', `\n${chalk.yellow('  Created with ❤️  by')} ${chalk.green.bold('Zain Ali')} & ${chalk.cyan('Antigravity')}.  ${chalk.gray('v4.0.0')}\n`);
 program.parse(process.argv);
