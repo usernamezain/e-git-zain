@@ -12,12 +12,31 @@
 
 <br/>
 
-> **Push, protect, branch, stash, manage PRs, delete repos, run a TUI dashboard — all from one beautiful terminal tool.**
-> No browser. No switching apps. Just your terminal.
+> **`e-git` (`e-git-zain`) is an all-in-one developer CLI for Git and GitHub automation.** It unifies automatic staging, secret leak scanning, pre-push verification, branch and stash management, full Pull Request / Issue / Action workflows, force-push safeguards, push undo/redo time travel, and an interactive TUI dashboard into a single zero-config command line tool.
 
 </div>
 
 ---
+
+## 💡 What is `e-git`? (Quick Summary)
+
+`e-git` is designed for developers who want the speed of automation without sacrificing safety. Instead of remembering multi-step command sequences (`git add . && git commit -m "..." && git push origin main`), running pre-commit hooks manually, or switching to the browser to review pull requests, `e-git` executes the entire workflow seamlessly from your terminal with built-in security shields and interactive menus.
+
+### 📊 Feature Comparison: `e-git` vs `Standard Git` vs `GitHub CLI (gh)`
+
+| Feature / Capability | Standard Git | GitHub CLI (`gh`) | `e-git` (`e-git-zain`) |
+|---|:---:|:---:|:---:|
+| **Single-command Stage → Commit → Push** | ❌ 3 manual steps | ❌ Git only | ✅ **1 command (`e-git "msg"`)** |
+| **Built-in Secret / API Key Scanner** | ❌ None | ❌ None | ✅ **Built-in (13 key patterns)** |
+| **Pre-Push Lint & Test Shield** | ⚠️ Needs husky setup | ❌ None | ✅ **Automatic detection & prompts** |
+| **Push Undo & Redo Time Travel** | ⚠️ Complex reflog | ❌ None | ✅ **`e-git undo` / `e-git redo`** |
+| **Interactive Terminal Dashboard (TUI)** | ❌ None | ❌ None | ✅ **`e-git dashboard`** |
+| **Interactive Branch Manager** | ❌ Manual commands | ❌ None | ✅ **`e-git branch`** |
+| **Interactive Stash Manager** | ❌ Manual index lookups | ❌ None | ✅ **`e-git stash`** |
+| **Smart Pull with Auto-Stash** | ❌ Manual stash | ❌ None | ✅ **`e-git pull`** |
+| **Pull Requests / Issues / Actions Hub** | ❌ None | ✅ CLI only | ✅ **Integrated (`e-git github`)** |
+| **Safe Nuclear Options (Repo / Branch Deletion)**| ❌ Complex flags | ⚠️ Single command | ✅ **Guarded 2-step verification** |
+| **Auto-Commit File Watcher** | ❌ None | ❌ None | ✅ **`e-git schedule`** |
 
 ## 📦 Installation
 
@@ -781,6 +800,54 @@ gantt
 
 ---
 
+## ❓ Frequently Asked Questions (FAQ)
+
+### What is `e-git` (`e-git-zain`)?
+`e-git` is an open-source command-line tool built on Node.js that automates everyday Git and GitHub operations. It combines repository initialization, staging, secret scanning, commits, upstream pushes, branch switching, stash management, Pull Request creation/merging, GitHub Actions monitoring, and local commit history time travel into a single intuitive CLI.
+
+### How does `e-git` prevent secret leaks?
+Before staging and pushing any code, `e-git` inspects modified and newly created files for sensitive credentials, including AWS keys, GitHub tokens, Slack bot tokens, Stripe keys, private keys, database connection strings, and JWT secrets. If any pattern matches, the push is immediately halted, showing you the exact file and token type before anything reaches remote servers.
+
+### Can I undo a push made with `e-git`?
+Yes. Every successful push is recorded in a private, non-committed local history ledger (`.git/git-easy-history.json`). Running `e-git undo` rolls back your working tree and commit pointer to the exact state before your last push. If you undid by mistake, `e-git redo` steps you forward again.
+
+### Does `e-git` replace standard Git or work alongside it?
+`e-git` wraps standard Git using `simple-git`. It does not modify your core `.git` configuration or proprietary git metadata. You can use standard `git` commands and `e-git` interchangeably in the same repository at any time.
+
+### How do I use GitHub PR and Issue management inside the terminal?
+Run `e-git github` (or alias `e-git gh`). This opens an interactive hub that lets you list open PRs, view detailed reviews and mergeability, merge with squash/rebase/merge strategies, create new PRs, manage issues, and check GitHub Action workflow runs without opening a web browser.
+
+### Is `e-git` compatible with Windows, macOS, and Linux?
+Yes. `e-git` is fully cross-platform and tested across Windows (PowerShell / CMD), macOS (Zsh / Bash), and Linux environments running Node.js v18 or higher.
+
+---
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "e-git-zain",
+  "alternateName": "e-git",
+  "operatingSystem": "Cross-platform (Windows, macOS, Linux)",
+  "applicationCategory": "DeveloperApplication",
+  "description": "The ultimate developer CLI for Git and GitHub automation with built-in secret scanning, pre-push safety shields, GitHub CLI hub, interactive TUI dashboard, branch/stash managers, and push undo/redo time travel.",
+  "softwareVersion": "4.0.2",
+  "license": "https://opensource.org/licenses/MIT",
+  "author": {
+    "@type": "Person",
+    "name": "Zain Ali",
+    "url": "https://zain-mughal.vercel.app"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+
+---
+
 ## 👨‍💻 Credits
 
 Made with ❤️ by **[Zain Ali](https://zain-mughal.vercel.app)**  
@@ -795,3 +862,4 @@ Learning platform: **[m-learn.eu.cc](https://m-learn.eu.cc)**
 ## 📄 License
 
 MIT © Zain Ali — see [LICENSE](LICENSE) for full text.
+

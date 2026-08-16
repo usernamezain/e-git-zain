@@ -1,7 +1,7 @@
 {
   "name": "e-git-zain",
-  "version": "4.0.2",
-  "description": "🚀 The ultimate CLI to automate your GitHub workflow. Simplified push, undo, redo, and history management.",
+  "version": "4.0.3",
+  "description": "⚡ The ultimate developer CLI for Git & GitHub automation. Built-in secret scanner, pre-push safety shields, GitHub CLI hub (PRs/Issues/Actions), interactive TUI dashboard, branch/stash managers, and zero-config push/undo/redo.",
   "type": "module",
   "scripts": {
     "test": "vitest run",
@@ -17,14 +17,44 @@
     "git",
     "github",
     "cli",
-    "automation",
-    "push",
-    "undo",
-    "redo",
+    "git-cli",
+    "git-automation",
+    "git-workflow",
+    "secret-scanner",
+    "git-security",
+    "pre-push-hook",
+    "git-dashboard",
+    "git-tui",
+    "git-branch-manager",
+    "git-stash",
+    "github-actions",
+    "pull-request",
+    "force-push",
+    "developer-tools",
+    "productivity",
+    "terminal",
+    "tui",
     "e-git",
+    "git-easy",
+    "e-git-zain",
     "zain-ali"
   ],
-  "author": "Zain Ali",
+  "author": {
+    "name": "Zain Ali",
+    "url": "https://zain-mughal.vercel.app"
+  },
+  "homepage": "https://github.com/usernamezain/e-git-zain#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usernamezain/e-git-zain.git"
+  },
+  "bugs": {
+    "url": "https://github.com/usernamezain/e-git-zain/issues"
+  },
+  "funding": {
+    "type": "individual",
+    "url": "https://zain-mughal.vercel.app"
+  },
   "license": "MIT",
   "dependencies": {
     "boxen": "^8.0.1",
