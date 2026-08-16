@@ -24,8 +24,8 @@ const program = new Command();
 
 program
   .name('git-easy')
-  .description(chalk.cyan('⚡ Git-Easy v4.0.0 — The ultimate GitHub CLI companion'))
-  .version('4.0.0');
+  .description(chalk.cyan('⚡ Git-Easy v4.0.2 — The ultimate GitHub CLI companion'))
+  .version('4.0.2');
 
 // ── Core ───────────────────────────────────────────────────────────────────────
 registerPush(program);      // e-git [message]       — commit & push
@@ -63,5 +63,5 @@ program.command('credits').description('✨ View the creators.').action(() => {
   console.log(`  ${chalk.green('👉')} ${chalk.cyan.underline('https://whatsapp.com/channel/0029VbBUVv35fM5eAnXw3w2D')}\n`);
 });
 
-program.addHelpText('after', `\n${chalk.yellow('  Created with ❤️  by')} ${chalk.green.bold('Zain Ali')} & ${chalk.cyan('Antigravity')}.  ${chalk.gray('v4.0.0')}\n`);
+program.addHelpText('after', `\n${chalk.yellow('  Created with ❤️  by')} ${chalk.green.bold('Zain Ali')} & ${chalk.cyan('Antigravity')}.  ${chalk.gray('v4.0.2')}\n`);
 program.parse(process.argv);
