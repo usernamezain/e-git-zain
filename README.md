@@ -1,15 +1,19 @@
 <div align="center">
 
-# ⚡ Git-Easy (`e-git`)
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=32&duration=2800&pause=1000&color=00D9FF&center=true&vCenter=true&width=700&lines=⚡+e-git-zain+v4.0.0;The+Terminal+GitHub+Companion;Push.+Protect.+Review.+Delete.+All+in+one." alt="Typing SVG" />
 
-**v3.0.0 · The ultimate CLI to automate your entire GitHub workflow**
+<br/>
 
-Push, pull, branch, diff, stash, open PRs, auto-commit on schedule — all from one beautiful terminal tool.
+[![npm version](https://img.shields.io/npm/v/e-git-zain?color=00D9FF&style=for-the-badge&logo=npm&logoColor=white)](https://www.npmjs.com/package/e-git-zain)
+[![npm downloads](https://img.shields.io/npm/dm/e-git-zain?color=22C55E&style=for-the-badge&logo=npm&logoColor=white)](https://www.npmjs.com/package/e-git-zain)
+[![Tests](https://img.shields.io/badge/tests-33%20passing-22C55E?style=for-the-badge&logo=vitest&logoColor=white)](./tests)
+[![License: MIT](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D18-22C55E?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 
-[![npm](https://img.shields.io/npm/v/e-git-zain?color=cyan&style=flat-square)](https://www.npmjs.com/package/e-git-zain)
-[![npm downloads](https://img.shields.io/npm/dm/e-git-zain?color=green&style=flat-square)](https://www.npmjs.com/package/e-git-zain)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen?style=flat-square)](https://nodejs.org)
+<br/>
+
+> **Push, protect, branch, stash, manage PRs, delete repos, run a TUI dashboard — all from one beautiful terminal tool.**
+> No browser. No switching apps. Just your terminal.
 
 </div>
 
@@ -21,452 +25,497 @@ Push, pull, branch, diff, stash, open PRs, auto-commit on schedule — all from 
 npm install -g e-git-zain
 ```
 
-After install, two aliases are available:
+Two global aliases are registered automatically:
 
 ```bash
-e-git --help
-git-easy --help
+e-git --help        # primary alias
+git-easy --help     # secondary alias
 ```
 
 ---
 
-## ⚡ Quick Start
+## ⚡ The 1-Command Workflow
 
 ```bash
-e-git "your commit message"
+e-git "feat: add dark mode"
 ```
 
-That's it — stages everything, commits, and pushes to your remote in one shot.
+That single command does **all of this**:
+
+```
+  🔐 Scan for secrets in changed files
+  🛡️  Run pre-push checks (lint / test) if configured
+  📂 Show you what's changed
+  ✏️  Stage everything (git add .)
+  💬 Commit with your message
+  🚀 Push to remote with --set-upstream
+  📋 Log the push to history (for undo/redo)
+  📦 Print a success panel with branch, hash, message, time
+```
 
 ---
 
-## 📋 Commands at a Glance
+## 🗺️ Command Map
 
-| Command | Description |
+```mermaid
+mindmap
+  root((e-git))
+    🚀 Push
+      Commit & push
+      --force flag
+      Secret scan shield
+      Pre-push checks
+    💣 Nuke
+      Force push
+      Delete branch
+      Delete remote repo
+    🐙 GitHub Hub
+      Pull Requests
+        List
+        View
+        Create
+        Merge
+      Issues
+        List
+        View
+        Create
+        Close
+      Actions
+        List runs
+        View logs
+        Re-run failed
+    🖥️ Dashboard
+      Status panel
+      Branch list
+      Commit log
+      Stash list
+      Push history
+      Actions panel
+      Quick actions
+    🌿 Branch
+      Create
+      Switch
+      Rename
+      Delete
+      Push to remote
+    📦 Stash
+      Save
+      List
+      Pop
+      Apply
+      Drop
+      Clear all
+    ⬇️ Pull
+      Smart stash
+      Pull
+      Restore stash
+      Conflict report
+    📜 History
+      Browse pushes
+      View diff
+      Restore state
+      Undo last push
+      Redo after undo
+    🛠️ Utilities
+      init wizard
+      tag releases
+      clone smart
+      status rich
+      diff visual
+      schedule auto
+      credits
+```
+
+---
+
+## 📋 Full Command Reference
+
+| Command | Alias | Description |
+|---|---|---|
+| `e-git [message]` | | ⚡ Stage → secret scan → commit → push |
+| `e-git [message] --force` | `-f` | 💣 Force push with safety confirmation |
+| `e-git nuke` | | 💣 Nuclear options menu (force push / delete) |
+| `e-git nuke --force-push` | | 🚀 Force push current branch |
+| `e-git nuke --delete-branch` | | 🌿 Delete a local + remote branch |
+| `e-git nuke --repo` | | 💀 Permanently delete remote GitHub repo |
+| `e-git github` | `e-git gh` | 🐙 GitHub hub — PRs, issues, actions |
+| `e-git github prs` | | 📋 List open pull requests |
+| `e-git github pr-view` | | 🔍 View a PR in detail |
+| `e-git github pr-create` | | ➕ Create a pull request |
+| `e-git github pr-merge` | | 🔀 Merge a PR (with strategy picker) |
+| `e-git github issues` | | 🐛 List open issues |
+| `e-git github issue-view` | | 🔍 View an issue in detail |
+| `e-git github issue-create` | | ➕ Create an issue |
+| `e-git github issue-close` | | ✅ Close an issue |
+| `e-git github actions` | | ⚙️ View recent workflow runs |
+| `e-git github action-logs` | | 📋 View workflow run logs in browser |
+| `e-git github rerun` | | 🔄 Re-run a failed workflow |
+| `e-git dashboard` | `e-git dash` | 🖥️ Full TUI dashboard |
+| `e-git branch` | | 🌿 Interactive branch manager |
+| `e-git diff` | | 🔍 Visual colored diff |
+| `e-git diff --staged` | `-s` | 🔍 Staged-only diff |
+| `e-git pull` | | ⬇️ Smart pull with auto-stash |
+| `e-git pull --rebase` | | ⬇️ Pull with rebase strategy |
+| `e-git init` | | 🏗️ Guided repo initialization wizard |
+| `e-git tag` | | 🏷️ Create & push semver release tags |
+| `e-git clone <url>` | | 📥 Smart clone (auto-install + VS Code) |
+| `e-git status` | | 📊 Rich status dashboard |
+| `e-git stash` | | 📦 Interactive stash manager |
+| `e-git pr` | | 🔗 Open Pull Request in browser |
+| `e-git schedule` | | ⏱️ Auto-commit on file change |
+| `e-git schedule -i <min>` | | ⏱️ Auto-commit every N minutes |
+| `e-git history` | | 📜 Browse & restore past pushes |
+| `e-git list` | | 📋 Table view of push history |
+| `e-git undo` | | 🔙 Revert to last pushed state |
+| `e-git redo` | | ⏭️ Jump forward after undo |
+| `e-git clear` | | 🧹 Clear local push history log |
+| `e-git credits` | | ✨ View creators |
+
+---
+
+## 🛡️ Safety Shields (v4.0.0)
+
+Every `e-git push` runs two shields **before** staging anything:
+
+### Shield 1 — Secret Scanner
+
+Scans all changed files for 13 secret patterns:
+
+```mermaid
+flowchart LR
+    A[🚀 e-git push] --> B{Secret Scan}
+    B -->|CLEAN ✓| C[Pre-push Checks]
+    B -->|SECRETS FOUND ⚠️| D[Show alert]
+    D --> E{User choice}
+    E -->|Abort| F[❌ Push blocked]
+    E -->|Continue anyway| C
+    C -->|No scripts| G[Stage & Commit]
+    C -->|lint / test chosen| H[Run checks]
+    H -->|Pass ✓| G
+    H -->|Fail| I{Continue?}
+    I -->|No| F
+    I -->|Yes| G
+    G --> J[🚀 Push]
+    J --> K[📋 Log to history]
+```
+
+**Patterns detected:**
+
+| Pattern | Example |
 |---|---|
-| `e-git [message]` | ⚡ Stage → commit → push to GitHub |
-| `e-git branch` | 🌿 Interactive branch manager |
-| `e-git diff [-s]` | 🔍 Visual colored diff |
-| `e-git pull [--rebase]` | ⬇️ Smart pull with auto-stash |
-| `e-git init` | 🏗️ Guided repo initialization wizard |
-| `e-git tag` | 🏷️ Create & push semver release tags |
-| `e-git clone <url> [-d dir]` | 📥 Smart clone with auto-install |
-| `e-git status` | 📊 Rich status dashboard |
-| `e-git stash` | 📦 Interactive stash manager |
-| `e-git pr [--base branch]` | 🔗 Open Pull Request in browser |
-| `e-git schedule [-i min] [-p prefix]` | ⏱️ Auto-commit on file change or interval |
-| `e-git history` | 📜 Browse & restore past pushes (interactive) |
-| `e-git list` | 📋 Table view of push history |
-| `e-git undo` | 🔙 Revert files to last pushed state |
-| `e-git redo` | ⏭️ Jump forward after an undo |
-| `e-git clear` | 🧹 Clear local push history log |
-| `e-git credits` | ✨ View the creators |
+| AWS Access Key | `AKIA[0-9A-Z]{16}` |
+| AWS Secret Key | `aws_secret_access_key = …` |
+| GitHub Token | `ghp_…` |
+| GitHub Fine-Grained PAT | `github_pat_…` |
+| Generic API Key | `api_key = "…"` |
+| RSA / EC / OPENSSH Private Key | `-----BEGIN RSA PRIVATE KEY-----` |
+| Slack Token | `xoxb-…` |
+| Stripe Secret Key | `sk_live_…` |
+| Stripe Publishable Key | `pk_live_…` |
+| Password in config | `password = "…"` |
+| MongoDB connection string | `mongodb://user:pass@host` |
+| JWT Secret | `jwt_secret = "…"` |
+| SendGrid API Key | `SG.…` |
 
----
+### Shield 2 — Pre-Push Checks
 
-## 🔍 Detailed Feature Reference
+If your project has `lint` or `test` scripts in `package.json`, you're offered to run them before pushing. You choose which to run — or skip.
 
----
-
-### ⚡ Push (Default Command)
-
-```bash
-e-git "feat: add login page"
-e-git                          # will prompt for commit message
+```
+🛡️  Pre-push checks detected. Select which to run:
+❯ 🔍 lint  — npm run lint
+  🧪 tests — npm test
+  ⏭️  Skip all checks
 ```
 
-**What happens step by step:**
+---
 
-1. Checks you're in a valid git repository
-2. Verifies a remote (`origin`) exists — offers to add one if missing
-3. Verifies GitHub authentication (offers GitHub CLI login or PAT guidance if it fails)
-4. Checks for a `.gitignore` file — offers to generate one from a checklist if missing
-5. Scans for changed files and displays a **color-coded preview**:
-   - 🔴 `+` Untracked new files
-   - 🟡 `~` Modified files
-   - 🟢 `✓` Staged files
-6. Prompts for a commit message if none was provided
-7. Stages all files (`git add .`)
-8. Creates the commit
-9. **Auto-detects if you're on `master`** — asks if you want to rename it to `main` before pushing
-10. Pushes with `--set-upstream` so tracking is always configured
-11. Displays a **success panel** (boxen) showing:
-    - Branch name
-    - Short commit hash
-    - Commit message
-    - Time of push
-12. Logs the push to local history (for undo/redo/history commands)
+## 💣 Nuclear Options (`e-git nuke`)
 
-**Smart behaviors:**
-- If nothing has changed, exits cleanly with an info message
-- If push fails, shows the full error detail
-- Truncates file list display at 12 files with `+N more` hint
+```bash
+e-git nuke               # interactive menu
+e-git nuke --force-push  # force push current branch
+e-git nuke --delete-branch [name]   # delete local + remote branch
+e-git nuke --repo        # permanently delete the GitHub repository
+```
+
+```mermaid
+flowchart TD
+    A[e-git nuke] --> B{Action?}
+    B -->|Force Push| C[Type branch name\nto confirm]
+    C -->|Confirmed| D[git push --force-with-lease]
+    B -->|Delete Branch| E[Pick branch]
+    E --> F[Confirm]
+    F --> G[Delete local + remote]
+    B -->|Delete Repo| H[2-step confirmation\nType repo name]
+    H -->|Confirmed| I[gh repo delete --yes]
+    D & G & I --> J[✅ Result panel]
+```
+
+> ⚠️ Repo deletion requires `gh` CLI installed and authenticated (`gh auth login`)
 
 ---
 
-### 🌿 Branch — Interactive Branch Manager
+## 🐙 GitHub Hub (`e-git github`)
+
+A full GitHub management terminal — no browser needed.
+
+```bash
+e-git github            # interactive hub menu
+e-git gh prs            # list open PRs
+e-git gh pr-create      # create a PR
+e-git gh pr-merge       # merge a PR (with strategy picker)
+e-git gh issues         # list issues
+e-git gh actions        # view recent workflow runs
+e-git gh rerun          # re-run a failed workflow
+```
+
+**PR merge flow:**
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant T as 🖥️ Terminal
+    participant G as 🐙 GitHub
+
+    U->>T: e-git gh pr-merge
+    T->>G: gh pr list
+    G-->>T: [PR list + mergeable status]
+    T->>U: Show PRs (⚠️ blocked ones flagged)
+    U->>T: Pick PR
+    alt Not mergeable
+        T->>U: ⚠️ PR is blocked — proceed anyway?
+        U->>T: Yes / Abort
+    end
+    T->>U: Pick strategy (Merge / Squash / Rebase)
+    U->>T: Confirm
+    T->>G: gh pr merge --squash --delete-branch
+    G-->>T: Success
+    T->>U: ✅ Merged + branch deleted
+```
+
+---
+
+## 🖥️ TUI Dashboard (`e-git dashboard`)
+
+```bash
+e-git dashboard     # full dashboard
+e-git dash          # short alias
+e-git dash --no-actions   # skip Actions panel (faster)
+```
+
+The dashboard renders all sections automatically:
+
+```
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║  🖥️   E-GIT DASHBOARD                                   v4.0.0  ║
+  ║  Branch: main                                                    ║
+  ╚══════════════════════════════════════════════════════════════════╝
+
+📊  Status
+══════════════════════════════════════════════════════════════════
+  Branch:   main   ↑2 ahead   ↓0 behind
+  State:    ⚡ 3 file(s) changed
+
+  ● Staged (ready to commit):
+    + src/dashboard.js
+
+  ● Modified (not staged):
+    ~ README.md
+
+🌿  Branches
+══════════════════════════════════════════════════════════════════
+  ▶ main  ← current
+  · feature/login
+  · fix/auth-bug
+
+📜  Recent Commits
+══════════════════════════════════════════════════════════════════
+  ◆ 2afbaaf  feat: v4.0.0 - safety shields, nuke, GitHub hub
+  · c29bead  fix: pre-push hook handler
+  · 8a3e52f  feat: vitest suite - 33 tests passing
+
+📦  Stashes
+══════════════════════════════════════════════════════════════════
+  [0] WIP — login page styling
+
+🕰️   Push History
+══════════════════════════════════════════════════════════════════
+  ◆ 8/17/2026, 12:19 AM    main      feat: v4.0.0 - safety shields…
+
+⚙️   GitHub Actions — Recent Runs
+══════════════════════════════════════════════════════════════════
+  ✔  CI — Node.js Tests       main
+  ✔  Publish to npm           main
+
+─────────────────────────────────────────────────────────────────
+🎛️  Quick action:
+❯ 🔄 Refresh dashboard
+  🌿 Branch manager
+  🐙 GitHub hub
+  💣 Nuclear options
+  ❌ Exit
+```
+
+---
+
+## 🌿 Branch Manager (`e-git branch`)
 
 ```bash
 e-git branch
 ```
 
-Opens an **interactive menu** showing all local branches (with the current branch highlighted in green). Then presents these options:
-
 | Action | What it does |
 |---|---|
-| **Create new branch** | Prompts for name, creates it, optionally switches to it immediately |
-| **Switch branch** | Lists all other branches — select and switch in one step |
-| **Rename current branch** | Prompts for a new name, renames in place |
-| **Delete a branch** | Select from list, choose normal or force delete |
-| **Push current branch to remote** | Pushes with `--set-upstream` so tracking is set |
-| **Exit** | Returns to terminal |
-
-**Visual output:** A `boxen` panel lists all branches before the menu appears, so you always know where you stand.
+| **Create new branch** | Prompts for name → creates → optionally switches |
+| **Switch branch** | Pick from list → one-step switch |
+| **Rename current branch** | Enter new name → rename in place |
+| **Delete a branch** | Pick from list → normal or force delete |
+| **Push current branch** | Push with `--set-upstream` |
+| **Exit** | Return to terminal |
 
 ---
 
-### 🔍 Diff — Visual Colored Diff
+## ⬇️ Smart Pull (`e-git pull`)
 
-```bash
-e-git diff            # show all working directory changes
-e-git diff --staged   # show only staged (index) changes
-e-git diff -s         # shorthand for --staged
-```
-
-**Output includes two sections:**
-
-1. **📊 Summary block** — file-by-file stat line with `+` additions (green) and `-` deletions (red)
-2. **📄 Full diff** — line-by-line color coding:
-   - 🟢 Green — added lines
-   - 🔴 Red — removed lines
-   - 🔵 Cyan — hunk headers (`@@`)
-   - 🟡 Yellow — diff file headers
-   - Gray — context lines
-
-If there are no changes to show, exits with a clean `ℹ No changes` message.
-
----
-
-### ⬇️ Pull — Smart Pull
-
-```bash
-e-git pull
-e-git pull --rebase   # pull using rebase strategy instead of merge
-```
-
-**Smart stash workflow:**
-1. Detects if you have unsaved local changes
-2. **Auto-stashes** them with a timestamped name before pulling
-3. Pulls from `origin/<current-branch>`
-4. Shows a **pull summary panel** (files changed, insertions, deletions)
-5. **Automatically pops the stash** to restore your work
-
-**Conflict detection:**
-- If the pull produces merge conflicts, lists every conflicting file with a 🔥 warning
-- Shows resolution tips:
-  - Edit files manually
-  - Run `git mergetool`
-  - Stage fixes and re-commit
-
----
-
-### 🏗️ Init — Repo Initialization Wizard
-
-```bash
-e-git init
-```
-
-**Full guided setup — answers a few prompts then handles everything:**
-
-| Prompt | What it does |
-|---|---|
-| Project name | Defaults to current folder name |
-| Short description | Used in generated `README.md` |
-| Create initial commit? | Commits README + .gitignore as first commit |
-| Add GitHub remote? | Optionally adds `origin` remote |
-| Remote URL | If yes, adds remote and pushes first commit |
-
-**Auto-generated files:**
-- `README.md` — pre-filled with project name and description
-- `.gitignore` — pre-filled with `node_modules/`, `.env`, `dist/`, `build/`, `.DS_Store`
-- Initializes on `main` branch (not `master`)
-
-**End result panel** shows: project name, branch, remote URL, and `.gitignore` status.
-
----
-
-### 🏷️ Tag — Release Tag Creator
-
-```bash
-e-git tag
-```
-
-**Perfect for npm package releases and versioning.**
-
-1. Lists your **last 8 existing tags** before prompting
-2. Suggests the next version by **auto-incrementing** the last tag's patch number
-3. Asks for a **tag message** (release notes / changelog)
-4. Creates an **annotated git tag** (not a lightweight tag)
-5. Optionally **pushes the tag to remote**
-
-**End result panel** shows: tag name, message, and whether it was pushed.
-
-**Example flow:**
-```
-? New tag version (last: v1.2.3): v1.2.4
-? Tag message: Fix auth bug and add dark mode
-? Push tag to remote? Yes
-✅ Tag "v1.2.4" pushed!
+```mermaid
+flowchart LR
+    A[e-git pull] --> B{Local changes?}
+    B -->|Yes| C[Auto-stash with timestamp]
+    B -->|No| D[git pull]
+    C --> D
+    D --> E{Merge conflicts?}
+    E -->|Yes| F[🔥 List conflicting files\nShow resolution tips]
+    E -->|No| G[Pop stash]
+    C --> G
+    G --> H[✅ Show pull summary panel]
 ```
 
 ---
 
-### 📥 Clone — Smart Clone
-
-```bash
-e-git clone https://github.com/user/repo.git
-e-git clone https://github.com/user/repo.git --dir my-project
-e-git clone https://github.com/user/repo.git -d my-project
-```
-
-**Options:**
-
-| Flag | Description | Default |
-|---|---|---|
-| `-d, --dir <dir>` | Target folder name | Repository name |
-
-**After cloning:**
-1. Detects if a `package.json` exists in the cloned folder
-2. **Auto-runs `npm install`** if found and you confirm
-3. **Opens VS Code** with `code <dir>` if you confirm (requires `code` in PATH)
-
-**End result panel** shows: repo name, directory, dependency install status, and VS Code status.
-
----
-
-### 📊 Status — Rich Status Dashboard
-
-```bash
-e-git status
-```
-
-**Everything you need to know at a glance — all in one screen:**
-
-**Top panel:**
-- Current branch name (bold cyan)
-- Ahead / behind remote count (↑ green, ↓ red)
-- "Working tree clean" or file change count
-
-**File change section (color-coded by state):**
-- 🟢 **Staged** (index) files — ready to commit
-- 🟡 **Modified** (unstaged) files — edited but not staged
-- 🔴 **Untracked** files — new files not yet tracked
-
-**Recent commits section:**
-- Last 5 commits with short hash and message
-- Most recent highlighted with a `◆` bullet
-
-Runs `git status` and `git log` **in parallel** for maximum speed.
-
----
-
-### 📦 Stash — Interactive Stash Manager
+## 📦 Stash Manager (`e-git stash`)
 
 ```bash
 e-git stash
 ```
 
-**Full stash lifecycle in one interactive menu:**
-
 | Action | What it does |
 |---|---|
-| **Save** | Stashes all current changes with a custom name (defaults to `stash-<timestamp>`) |
-| **List** | Shows all stashes with their index, name, and date |
-| **Pop** | Restores the latest stash and removes it from the stash list |
-| **Apply** | Pick a specific stash by index to apply without removing it |
-| **Drop** | Pick a specific stash by index to permanently delete |
-| **Clear** | Deletes ALL stashes (requires confirmation) |
-| **Exit** | Returns to terminal |
-
-**Notes:**
-- Save shows the file count that was stashed
-- List, Apply, and Drop show stash messages and timestamps
-- Clear has a `default: false` safety confirmation
+| **Save** | Stash with custom name (default: `stash-<timestamp>`) |
+| **List** | All stashes with index, name, date |
+| **Pop** | Restore latest stash and remove it |
+| **Apply** | Pick stash by index → apply without removing |
+| **Drop** | Pick stash by index → permanently delete |
+| **Clear** | Delete ALL stashes (requires confirmation) |
 
 ---
 
-### 🔗 PR — Open Pull Request in Browser
+## ⏱️ Auto-Schedule (`e-git schedule`)
 
 ```bash
-e-git pr
-e-git pr --base develop    # open PR against a different base branch
+e-git schedule                    # watch for file changes → auto-push after 2s debounce
+e-git schedule -i 30              # push every 30 minutes
+e-git schedule -p "💾 WIP save"   # custom commit message prefix
 ```
-
-**Options:**
-
-| Flag | Description | Default |
-|---|---|---|
-| `--base <branch>` | The target (base) branch for the PR | `main` |
-
-**What it does:**
-1. Reads your `origin` remote URL (supports both HTTPS and SSH `git@github.com:` formats)
-2. Normalizes SSH URLs to HTTPS automatically
-3. Pushes your current branch to remote (with `--set-upstream`)
-4. Builds the GitHub compare URL: `github.com/<repo>/compare/<base>...<branch>?expand=1`
-5. Displays a panel with repo, branch, base branch, and full PR URL
-6. **Opens the URL in your default browser** using the `open` package
-
----
-
-### ⏱️ Schedule — Auto-Commit & Push
-
-```bash
-# File watch mode — auto-push 2 seconds after any file change
-e-git schedule
-
-# Interval mode — push every 30 minutes regardless of changes
-e-git schedule --interval 30
-e-git schedule -i 30
-
-# Custom commit message prefix
-e-git schedule --prefix "💾 WIP save"
-e-git schedule -p "backup"
-```
-
-**Options:**
 
 | Flag | Description | Default |
 |---|---|---|
 | `-i, --interval <minutes>` | Push every N minutes | (file watch mode) |
 | `-p, --prefix <msg>` | Commit message prefix | `⏱️ Auto-save` |
 
-**File watch mode (default):**
-- Uses `chokidar` to watch the entire project directory
-- Ignores: `.git/`, `node_modules/`, `dist/`, `build/`
-- Has a **2-second debounce** — waits for you to stop typing before committing
-- Each auto-commit message: `<prefix> <HH:MM:SS>`
-
-**Interval mode:**
-- Pushes on a timer regardless of whether files changed
-- Only commits if there are actual changes (skips empty commits)
-
-**Both modes:**
-- Show a live spinner `👀 Watching for changes…`
-- Display a success line for every auto-push with timestamp
-- Press `Ctrl+C` to stop cleanly
+Ignores: `.git/`, `node_modules/`, `dist/`, `build/`
 
 ---
 
-### 📜 History — Interactive Push Browser
+## 📜 History & Time Travel
 
 ```bash
-e-git history
+e-git history     # interactive browser — pick any push, view diff, or restore
+e-git list        # plain table view of all logged pushes
+e-git undo        # revert files to last pushed state
+e-git redo        # jump forward after an undo
+e-git clear       # wipe local push history log
 ```
 
-**Browse every push you've made from this machine:**
-1. Shows a paginated list (15 items/page) of all logged pushes with:
-   - Date & time
-   - Branch name (in green)
-   - Commit message
-2. Select any push to **view its full diff** (colored, with compact summary)
-3. From the detail view, choose:
-   - **🔙 Back** — return to the list
-   - **🕰️ Restore** — reset files to that exact state (with destructive warning)
-   - **❌ Exit**
-
----
-
-### 📋 List — Table View of Push History
-
-```bash
-e-git list
-```
-
-Simple, non-interactive table output showing all recorded pushes:
+**History table output:**
 
 ```
 ──────────────────────────────────────────────────────────────────────
 Date & Time               Branch         Message
 ──────────────────────────────────────────────────────────────────────
-5/5/2026, 9:02:30 AM      main           feat: add login page
-5/4/2026, 8:45:10 PM      main           fix: auth bug
+8/17/2026, 12:19 AM       main           feat: v4.0.0 safety shields
+8/16/2026, 11:43 PM       main           fix: pre-push handler
+8/16/2026, 10:01 PM       feature/login  feat: add login component
 ──────────────────────────────────────────────────────────────────────
 ```
 
----
-
-### 🔙 Undo — Revert to Last Push
-
-```bash
-e-git undo
-```
-
-**Safely rolls back your working directory:**
-- If HEAD matches the latest logged push → reverts to the **one before that**
-- If HEAD is already behind → reverts to the **most recent** logged push
-- Always shows what push you're reverting to (message + timestamp)
-- Requires confirmation before the destructive `git reset --hard`
+> Push history is stored at `.git/git-easy-history.json` — inside `.git` so it is **never committed**.
 
 ---
 
-### ⏭️ Redo — Jump Forward After Undo
+## 🧪 Test Suite (Vitest)
 
 ```bash
-e-git redo
+npm test              # run all tests once
+npm run test:watch    # watch mode
+npm run test:coverage # with coverage report
 ```
 
-**Undid too much? This brings you back:**
-- Finds your current HEAD in the push history
-- Jumps to the push **one step newer** than the current state
-- Shows a `⚠️ CRITICAL` extra warning if the target push is more than **30 minutes old**
-- Requires confirmation before applying
+**33 tests across 2 test files — all passing:**
 
----
-
-### 🧹 Clear — Wipe Push History
-
-```bash
-e-git clear
 ```
+ ✓ tests/lib/safety.test.js  (21 tests)
+   Secret Scanner — Detection         14 ✓
+   Secret Scanner — False Positives    6 ✓
+   Secret Scanner — Multiple patterns  1 ✓
 
-Deletes the local push history file (`.git/git-easy-history.json`). Requires confirmation. This only affects the **local log** used by `e-git history / undo / redo` — it does not touch any git commits or remotes.
+ ✓ tests/lib/history.test.js (12 tests)
+   readHistory edge cases              3 ✓
+   writeHistory & readHistory          3 ✓
+   logPush behavior                    6 ✓
 
----
-
-### ✨ Credits
-
-```bash
-e-git credits
+ Test Files  2 passed (2)
+ Tests      33 passed (33)
+ Duration   1.43s
 ```
-
-Displays creator info, portfolio link, and learning resources.
 
 ---
 
 ## 🏗️ Project Structure
 
 ```
-e-git-zain/
-├── index.js                  # Entry point — imports & registers all commands
+e-git-zain/                         v4.0.0
+├── index.js                        Entry point — imports & registers all commands
 ├── package.json
+├── vitest.config.js                Vitest test configuration
 ├── lib/
-│   ├── git.js                # simpleGit instance, auth check, remote setup, .gitignore helper
-│   ├── ui.js                 # banner, panel(), div(), badge(), fileIcon() — chalk/boxen helpers
-│   └── history.js            # historyPath(), readHistory(), writeHistory(), logPush()
-└── commands/
-    ├── push.js               # Default push: stage → commit → push + success panel
-    ├── branch.js             # Branch manager: create/switch/rename/delete/push
-    ├── diff.js               # Visual diff: stat summary + full color diff
-    ├── pull.js               # Smart pull: auto-stash → pull → restore + conflict report
-    ├── init.js               # Init wizard: git init + README + .gitignore + first commit
-    ├── tag.js                # Release tags: annotated tag + push
-    ├── clone.js              # Smart clone: clone + npm install + VS Code open
-    ├── status.js             # Status dashboard: branch/files/ahead-behind/commits
-    ├── stash.js              # Stash manager: save/list/pop/apply/drop/clear
-    ├── pr.js                 # PR opener: build GitHub compare URL + open browser
-    ├── schedule.js           # Auto-commit: chokidar file watcher or interval timer
-    ├── history.js            # history (interactive) + list (table) + clear commands
-    └── undoredo.js           # undo + redo commands
+│   ├── git.js                      simpleGit, auth check, remote setup, .gitignore helper
+│   ├── ui.js                       banner, panel(), div(), badge(), fileIcon()
+│   ├── history.js                  historyPath(), readHistory(), writeHistory(), logPush()
+│   ├── safety.js               ★   Secret scanner + pre-push check runner [v4.0.0]
+│   └── github.js               ★   gh CLI wrapper: ensureGhCli, ghJson, ghRun [v4.0.0]
+├── commands/
+│   ├── push.js                     Default push + safety shields + --force flag
+│   ├── nuke.js                 ★   Force push / delete branch / delete repo [v4.0.0]
+│   ├── gh-suite.js             ★   GitHub hub: PRs, issues, actions [v4.0.0]
+│   ├── dashboard.js            ★   TUI full-repo dashboard [v4.0.0]
+│   ├── branch.js                   Branch manager
+│   ├── diff.js                     Visual diff
+│   ├── pull.js                     Smart pull
+│   ├── init.js                     Init wizard
+│   ├── tag.js                      Release tags
+│   ├── clone.js                    Smart clone
+│   ├── status.js                   Status dashboard
+│   ├── stash.js                    Stash manager
+│   ├── pr.js                       PR opener (browser)
+│   ├── schedule.js                 Auto-commit
+│   ├── history.js                  history + list + clear
+│   └── undoredo.js                 undo + redo
+└── tests/
+    ├── lib/safety.test.js      ★   21 secret scanner tests [v4.0.0]
+    └── lib/history.test.js     ★   12 history module tests [v4.0.0]
+
+★ = Added in v4.0.0
 ```
 
 ---
@@ -483,24 +532,43 @@ e-git-zain/
 | [boxen](https://github.com/sindresorhus/boxen) | Rounded info panels |
 | [open](https://github.com/sindresorhus/open) | Open URLs in default browser |
 | [chokidar](https://github.com/paulmillr/chokidar) | Cross-platform file watcher |
+| [vitest](https://vitest.dev) | Fast unit & integration test runner |
+| `gh` CLI (optional) | Required for `nuke --repo`, `e-git github` commands |
 
 ---
 
 ## 🔐 Authentication
 
-`e-git` uses your system's existing git credentials. If authentication fails during a push, it offers three paths:
+`e-git` uses your system's existing git credentials. If authentication fails, it offers:
 
 1. **GitHub CLI** (`gh auth login`) — recommended, interactive OAuth
-2. **Personal Access Token (PAT)** — paste as password, generate at [github.com/settings/tokens](https://github.com/settings/tokens)
+2. **Personal Access Token (PAT)** — generate at [github.com/settings/tokens](https://github.com/settings/tokens)
 3. **Abort** — exit safely
 
 ---
 
-## 📌 Notes
+## 🗂️ Changelog
 
-- Push history is stored locally at `.git/git-easy-history.json` (inside `.git` so it's never committed)
-- The tool always pushes to the **`main`** branch by default. If you're on `master`, it will ask to rename it
-- `e-git schedule` blocks the terminal while running — use a separate terminal window or run it in the background
+### v4.0.0 — Safety, Power & GitHub Integration
+- ✅ **Secret Scanner** — 13-pattern scanner runs before every push
+- ✅ **Pre-push Checks** — lint/test runner shield integrated into push
+- ✅ **`e-git --force` / `e-git nuke --force-push`** — force push with safety confirmation
+- ✅ **`e-git nuke --delete-branch`** — delete local + remote branch interactively
+- ✅ **`e-git nuke --repo`** — permanently delete a GitHub repository (2-step confirmation)
+- ✅ **`e-git github` (`e-git gh`)** — full GitHub hub: PRs, issues, Actions — no browser
+- ✅ **`e-git dashboard` (`e-git dash`)** — TUI overview: status, branches, commits, stashes, history, Actions
+- ✅ **Vitest test suite** — 33 tests across secret scanner and history module
+
+### v3.0.0
+- Added `schedule`, `stash`, `clone`, `tag`, `diff`, `pull`, `init`, `status`
+- Added `history`, `undo`, `redo`, `clear`
+- Added `branch` manager, `pr` opener
+
+### v2.0.0
+- Added `lib/` modular architecture, `ora` spinners, `boxen` panels
+
+### v1.0.0
+- Initial release — `e-git [message]` commit & push
 
 ---
 
@@ -508,9 +576,7 @@ e-git-zain/
 
 Made with ❤️ by **[Zain Ali](https://zain-mughal.vercel.app)**  
 Community: **mugha.dev community**  
-Learning platform: **[m-learn.eu.cc](https://m-learn.eu.cc)**  
-
-
+Learning platform: **[m-learn.eu.cc](https://m-learn.eu.cc)**
 
 ✨ **Join for more exclusive drops:**  
 👉 [WhatsApp Channel](https://whatsapp.com/channel/0029VbBUVv35fM5eAnXw3w2D)
