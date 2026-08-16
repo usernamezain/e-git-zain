@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import ora from 'ora';
-import { git, ensureRepo } from '../lib/git.js';
+import { git } from '../lib/git.js';
 import { readHistory } from '../lib/history.js';
 import { panel, div, badge } from '../lib/ui.js';
 import { ensureGhCli, ghJson } from '../lib/github.js';
@@ -134,11 +134,45 @@ export default function registerDashboard(program) {
     .description('🖥️  Interactive TUI dashboard — full repo overview at a glance.')
     .option('--no-actions', 'Skip GitHub Actions panel (faster, no gh CLI needed)')
     .action(async (opts) => {
-      await ensureRepo();
+      // ── Graceful repo check ────────────────────────────────────────────────
+      const isRepo = await git.checkIsRepo().catch(() => false);
+      if (!isRepo) {
+        process.stdout.write('\x1Bc');
+        console.log(chalk.cyan.bold(`
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║  🖥️   E-GIT DASHBOARD                                   v4.0.0  ║
+  ╚══════════════════════════════════════════════════════════════════╝`));
+        console.log(chalk.red.bold('\n  ✖  No git repository found in this folder.\n'));
+        console.log(chalk.gray(`  Current directory: ${chalk.white(process.cwd())}\n`));
+        console.log(chalk.yellow('  The dashboard needs to be run from inside a git project.\n'));
+        console.log(`  ${chalk.cyan('Option 1:')} ${chalk.white('Navigate into an existing project first:')}`);
+        console.log(chalk.gray('    cd my-project'));
+        console.log(chalk.gray('    e-git dash\n'));
+        console.log(`  ${chalk.cyan('Option 2:')} ${chalk.white('Initialize a new git repo here:')}`);
+        console.log(chalk.gray('    e-git init\n'));
+
+        const { action } = await inquirer.prompt([{
+          type: 'list', name: 'action',
+          message: 'What would you like to do?',
+          choices: [
+            { name: '🏗️  Initialize a new git repo here  (e-git init)', value: 'init' },
+            { name: '❌ Exit',                                            value: 'exit' },
+          ],
+        }]);
+
+        if (action === 'init') {
+          const { execSync } = await import('child_process');
+          try {
+            execSync(`node "${process.argv[1]}" init`, { stdio: 'inherit' });
+          } catch {}
+        }
+        return;
+      }
 
       const sp = ora(chalk.blue('Loading dashboard…')).start();
       const status = await git.status();
       sp.stop();
+
 
       // ── Clear & Header ─────────────────────────────────────────────────────
       process.stdout.write('\x1Bc'); // cross-platform clear
