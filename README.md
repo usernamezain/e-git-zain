@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=32&duration=2800&pause=1000&color=00D9FF&center=true&vCenter=true&width=700&lines=⚡+e-git-zain+v4.0.0;The+Terminal+GitHub+Companion;Push.+Protect.+Review.+Delete.+All+in+one." alt="Typing SVG" />
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=32&duration=2800&pause=1000&color=00D9FF&center=true&vCenter=true&width=700&lines=⚡+e-git-zain+v4.0.0;The+Terminal+GitHub+Companion;Push.+Protect.+Review.+Delete.+All+in+one.;🤖+AI+coming+in+v5.0.0...;🔍+GitHub+Search+%26+CVE+Scanner+coming..." alt="Typing SVG" />
 
 <br/>
 
@@ -569,6 +569,215 @@ e-git-zain/                         v4.0.0
 
 ### v1.0.0
 - Initial release — `e-git [message]` commit & push
+
+---
+
+## 🔮 What's Coming — v5.0.0 (AI + Search)
+
+<div align="center">
+
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=18&duration=3000&pause=800&color=A855F7&center=true&vCenter=true&width=700&lines=🤖+AI+commit+messages...;🔍+Search+any+GitHub+repo+from+CLI...;🛡️+Scan+for+CVEs+%26+vulnerabilities...;📊+AI-powered+code+review+in+terminal..." alt="Coming soon" />
+
+</div>
+
+> These features are **actively being designed**. The architecture below shows exactly how each will work.
+
+---
+
+### 🤖 Feature 1 — AI-Powered Commit Messages & Code Review
+
+```bash
+e-git ai          # AI hub — pick what you want AI to do
+e-git ai commit   # AI generates your commit message from the diff
+e-git ai review   # AI reviews your staged changes inline in the terminal
+e-git ai explain  # AI explains the last N commits in plain English
+```
+
+**How it works:**
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 You
+    participant T as 🖥️ Terminal
+    participant A as 🤖 AI (Gemini / GPT)
+    participant G as 📦 Git
+
+    U->>T: e-git ai commit
+    T->>G: git diff --staged
+    G-->>T: Raw diff output
+    T->>A: "Here is the diff — write a commit message"
+    A-->>T: "feat(auth): add JWT token refresh with 15-min expiry"
+    T->>U: Show AI message + options:
+    note over T,U: ✅ Use this  ✏️ Edit  🔄 Regenerate  ❌ Write my own
+    U->>T: ✅ Use this
+    T->>G: git commit -m "feat(auth): add JWT token refresh…"
+    G-->>T: Committed ✓
+    T->>U: 🚀 Ready to push!
+```
+
+**What AI can do in v5.0.0:**
+
+| Command | What AI does | Model |
+|---|---|---|
+| `e-git ai commit` | Reads `git diff --staged` → generates a semantic commit message (feat/fix/chore/docs) | Gemini Flash / GPT-4o-mini |
+| `e-git ai review` | Reads staged diff → gives line-by-line suggestions (bugs, style, security) | Gemini Pro / GPT-4o |
+| `e-git ai explain` | Reads last N commits → writes a plain-English changelog summary | Gemini Flash |
+| `e-git ai pr-description` | Reads branch diff vs main → drafts PR title + body | Gemini Pro |
+
+**Example terminal output for `e-git ai commit`:**
+
+```
+🤖 Analyzing your diff with AI...
+
+  Staged changes detected:
+    ~ src/auth/token.js       (+42 lines)
+    ~ src/middleware/guard.js  (+18 lines)
+    + tests/auth.test.js      (+67 lines)
+
+  ✨ AI-suggested commit message:
+
+  ┌─────────────────────────────────────────────────────────────────┐
+  │  feat(auth): add JWT refresh token rotation with 15-min TTL     │
+  │                                                                 │
+  │  - Implement token refresh endpoint in middleware/guard.js      │
+  │  - Add expiry validation and rotation logic in auth/token.js    │
+  │  - Cover both happy path and expiry edge cases in tests         │
+  └─────────────────────────────────────────────────────────────────┘
+
+  ❯ ✅ Use this message
+    ✏️  Edit before using
+    🔄 Regenerate (different style)
+    ❌ Write my own message
+```
+
+> **AI is opt-in, never forced.** You can skip it at any prompt or configure a default model and API key in `~/.egitrc`.
+
+---
+
+### 🔍 Feature 2 — GitHub Repo Search & CVE Vulnerability Scanner
+
+```bash
+e-git search <query>              # search GitHub repos by keyword
+e-git search <query> --sort stars # sort by stars, forks, or updated
+e-git search <query> --lang js    # filter by language
+e-git vuln                        # scan your current project for known CVEs
+e-git vuln <package>              # look up a specific npm package for CVEs
+e-git vuln --repo <github-url>    # scan any public GitHub repo for vulnerabilities
+```
+
+**Full data flow:**
+
+```mermaid
+flowchart TD
+    A[👤 User] -->|e-git search react dashboard| B[Parse query + filters]
+    B --> C[GitHub Search API]
+    C --> D{Results}
+    D --> E[📋 Render result table]
+    E --> F{Pick a repo}
+    F -->|View details| G[Show stars, forks,
+last commit, license,
+top contributors]
+    F -->|Clone it| H[e-git clone the repo
+auto-install + VS Code]
+    F -->|Scan for vulns| I[🛡️ CVE Scanner]
+
+    A2[👤 User] -->|e-git vuln| J[Read package.json
+dependencies]
+    J --> K[Query OSV.dev / Snyk / GitHub Advisory DB]
+    K --> L{Vulnerabilities found?}
+    L -->|None ✓| M[✅ All dependencies clean]
+    L -->|Found ⚠️| N[Show CVE table:
+package · severity · CVE ID · fix version]
+    N --> O{User choice}
+    O -->|Auto-fix| P[npm audit fix]
+    O -->|View details| Q[Open CVE advisory in browser]
+    O -->|Export report| R[Save vuln-report.json]
+```
+
+**`e-git search` — what the output looks like:**
+
+```
+🔍 Searching GitHub for: "react dashboard admin"
+   Filters: language=javascript  sort=stars
+
+──────────────────────────────────────────────────────────────────────────────
+ #   Repository                          ⭐ Stars   🍴 Forks   Updated
+──────────────────────────────────────────────────────────────────────────────
+ 1   marmelab/react-admin                24,100     5,280     2 days ago
+ 2   ant-design/ant-design-pro           36,700     8,100     4 hours ago
+ 3   creativetimofficial/material-dash   11,200     1,890     1 week ago
+ 4   apexcharts/apexcharts-react          3,400       420     3 days ago
+ 5   recharts/recharts                   23,900     1,740     1 day ago
+──────────────────────────────────────────────────────────────────────────────
+
+❯ 📄 View details for a repo
+  📥 Clone a repo
+  🛡️  Scan a repo for vulnerabilities
+  🔎 New search
+  ❌ Exit
+```
+
+**`e-git vuln` — vulnerability scan output:**
+
+```
+🛡️  Scanning your project dependencies for known CVEs...
+   Reading package.json — 42 direct dependencies found
+   Querying GitHub Advisory Database + OSV.dev...
+
+──────────────────────────────────────────────────────────────────────────
+ Package          Version   Severity   CVE ID            Fix Available
+──────────────────────────────────────────────────────────────────────────
+ ⚠️  axios          0.21.1    HIGH       CVE-2023-45857    0.28.0 ✓
+ ⚠️  lodash         4.17.15   MEDIUM     CVE-2021-23337    4.17.21 ✓
+ ⚠️  minimatch      3.0.4     HIGH       CVE-2022-3517     3.1.2 ✓
+ ✅  chalk          5.3.0     —          Clean             —
+ ✅  commander      12.1.0    —          Clean             —
+──────────────────────────────────────────────────────────────────────────
+ 3 vulnerabilities found  (2 HIGH · 1 MEDIUM)
+
+❯ 🔧 Auto-fix all (npm audit fix)
+  📋 Export report as vuln-report.json
+  🌐 View CVE details in browser
+  ❌ Exit
+```
+
+**Vulnerability data sources (v5.0.0 plan):**
+
+| Source | What it covers |
+|---|---|
+| [GitHub Advisory Database](https://github.com/advisories) | npm, PyPI, Maven, Go, Rust — official GitHub CVE data |
+| [OSV.dev](https://osv.dev) | Google's open-source vulnerability DB — broad ecosystem coverage |
+| `npm audit` | Local npm vulnerability check — instant, no API key required |
+| [Snyk API](https://snyk.io) | Deep dependency tree analysis (optional, requires Snyk token) |
+
+---
+
+### 🗓️ v5.0.0 Roadmap
+
+```mermaid
+gantt
+    title e-git v5.0.0 Development Roadmap
+    dateFormat  YYYY-MM-DD
+    section 🔍 Search Engine
+    GitHub Repo Search API         :active, s1, 2026-09-01, 14d
+    Result TUI table renderer      :s2, after s1, 7d
+    Clone from search results      :s3, after s2, 5d
+    section 🛡️ Vulnerability Scanner
+    npm audit integration          :v1, 2026-09-01, 7d
+    GitHub Advisory DB connector   :v2, after v1, 10d
+    OSV.dev connector              :v3, after v2, 7d
+    CVE report exporter            :v4, after v3, 5d
+    section 🤖 AI Engine
+    AI commit message generator    :a1, 2026-09-15, 10d
+    AI diff reviewer               :a2, after a1, 10d
+    AI PR description writer       :a3, after a2, 7d
+    AI explain commits             :a4, after a3, 5d
+    section 📦 Release
+    v5.0.0 publish to npm          :r1, 2026-10-20, 3d
+```
+
+> 🌟 **Follow the repo** and ⭐ star it to get notified when v5.0.0 drops.
+> Join the community for early previews: 👉 [WhatsApp Channel](https://whatsapp.com/channel/0029VbBUVv35fM5eAnXw3w2D)
 
 ---
 
