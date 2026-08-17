@@ -138,7 +138,7 @@ export async function runDashboard(opts = {}) {
       process.stdout.write('\x1Bc');
       console.log(chalk.cyan.bold(`
   ╔══════════════════════════════════════════════════════════════════╗
-  ║  🖥️   E-GIT DASHBOARD                                   v4.1.0  ║
+  ║  🖥️   E-GIT DASHBOARD                                   v4.1.1  ║
   ╚══════════════════════════════════════════════════════════════════╝`));
       console.log(chalk.red.bold('\n  ✖  No git repository found in this folder.\n'));
       console.log(chalk.gray(`  Current directory: ${chalk.white(process.cwd())}\n`));
@@ -177,7 +177,7 @@ export async function runDashboard(opts = {}) {
 
     // ── Clear & Header ─────────────────────────────────────────────────────
     process.stdout.write('\x1Bc'); // cross-platform clear
-    const versionBadge = chalk.gray('v4.1.0');
+    const versionBadge = chalk.gray('v4.1.1');
     const branchBadge  = chalk.cyan.bold(status.current || 'unknown');
     const timeBadge    = chalk.gray(new Date().toLocaleString());
 
