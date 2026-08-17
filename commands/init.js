@@ -1,10 +1,15 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import { input, confirm } from '@inquirer/prompts';
+import { input, confirm, select } from '@inquirer/prompts';
 import fs from 'fs/promises';
 import path from 'path';
 import { git } from '../lib/git.js';
 import { panel, banner } from '../lib/ui.js';
+
+// ── Helper: check if a file exists ───────────────────────────────────────────
+async function fileExists(filePath) {
+  try { await fs.access(filePath); return true; } catch { return false; }
+}
 
 export default function registerInit(program) {
   program.command('init')
@@ -20,7 +25,6 @@ export default function registerInit(program) {
       }
 
       const name        = await input({ message: '📁 Project name:', default: path.basename(process.cwd()) });
-      const desc        = await input({ message: '📝 Short description:', default: '' });
       const firstCommit = await confirm({ message: '🚀 Create initial commit?', default: true });
       const withRemote  = await confirm({ message: '🌐 Add GitHub remote?', default: false });
       const remoteUrl   = withRemote
@@ -31,10 +35,63 @@ export default function registerInit(program) {
       if (!isRepo) await git.init();
       await git.raw(['checkout', '-b', 'main']).catch(() => {});
 
-      // create README
-      await fs.writeFile('README.md', `# ${name}\n\n${desc}\n`);
-      // create .gitignore
-      await fs.writeFile('.gitignore', 'node_modules/\n.env\ndist/\nbuild/\n.DS_Store\n');
+      // ── README: smart check ─────────────────────────────────────────────────
+      const readmePath   = path.join(process.cwd(), 'README.md');
+      const readmeExists = await fileExists(readmePath);
+      let readmeStatus   = chalk.gray('kept existing ✓');
+
+      sp.stop(); // pause spinner for interactive prompt
+
+      if (readmeExists) {
+        // README already exists — ask the user instead of blindly overwriting
+        console.log(chalk.yellow('\n📄 README.md already exists in this folder.'));
+        const readmeAction = await select({
+          message: 'What would you like to do with README.md?',
+          choices: [
+            { name: '✅ Keep it — don\'t touch my existing README',       value: 'keep' },
+            { name: '✏️  Overwrite it — generate a new one from scratch', value: 'overwrite' },
+            { name: '➕ Append — add project info below existing content', value: 'append' },
+          ],
+        });
+
+        if (readmeAction === 'overwrite') {
+          const desc = await input({ message: '📝 Short description (for README):', default: '' });
+          await fs.writeFile(readmePath, buildReadme(name, desc));
+          readmeStatus = chalk.green('overwritten ✓');
+        } else if (readmeAction === 'append') {
+          const desc = await input({ message: '📝 Short description to append:', default: '' });
+          const existing = await fs.readFile(readmePath, 'utf8');
+          const appendBlock =
+            `\n---\n\n## About\n\n${desc || name}\n\n` +
+            `> Initialized with [e-git](https://github.com/usernamezain/e-git-zain) · ${new Date().toLocaleDateString()}\n`;
+          await fs.writeFile(readmePath, existing.trimEnd() + appendBlock);
+          readmeStatus = chalk.green('appended ✓');
+        }
+        // 'keep' → do nothing
+      } else {
+        // No README yet — optionally create one
+        const createReadme = await confirm({ message: '📄 Create a README.md?', default: true });
+        if (createReadme) {
+          const desc = await input({ message: '📝 Short description (optional — press Enter to skip):', default: '' });
+          await fs.writeFile(readmePath, buildReadme(name, desc));
+          readmeStatus = chalk.green('created ✓');
+        } else {
+          readmeStatus = chalk.gray('skipped');
+        }
+      }
+
+      sp.start(chalk.blue('Finishing setup…'));
+
+      // ── .gitignore: only create if missing ─────────────────────────────────
+      const gitignorePath   = path.join(process.cwd(), '.gitignore');
+      const gitignoreExists = await fileExists(gitignorePath);
+      let gitignoreStatus   = chalk.gray('kept existing ✓');
+
+      if (!gitignoreExists) {
+        await fs.writeFile(gitignorePath, 'node_modules/\n.env\ndist/\nbuild/\n.DS_Store\n');
+        gitignoreStatus = chalk.green('created ✓');
+      }
+
       sp.succeed(chalk.green('Repo initialized on "main"'));
 
       if (firstCommit) {
@@ -54,11 +111,24 @@ export default function registerInit(program) {
       }
 
       console.log(panel(
-        `${chalk.gray('Project:'.padEnd(12))} ${chalk.white(name)}\n` +
-        `${chalk.gray('Branch:'.padEnd(12))} ${chalk.cyan('main')}\n` +
-        `${chalk.gray('Remote:'.padEnd(12))} ${chalk.white(withRemote ? remoteUrl : 'none')}\n` +
-        `${chalk.gray('.gitignore:'.padEnd(12))} ${chalk.green('created ✓')}`,
+        `${chalk.gray('Project:'.padEnd(14))} ${chalk.white(name)}\n` +
+        `${chalk.gray('Branch:'.padEnd(14))} ${chalk.cyan('main')}\n` +
+        `${chalk.gray('Remote:'.padEnd(14))} ${chalk.white(withRemote ? remoteUrl : 'none')}\n` +
+        `${chalk.gray('README.md:'.padEnd(14))} ${readmeStatus}\n` +
+        `${chalk.gray('.gitignore:'.padEnd(14))} ${gitignoreStatus}`,
         'cyan', '🏗️  Repo Ready'
       ));
     });
+}
+
+// ── README template ───────────────────────────────────────────────────────────
+function buildReadme(name, desc) {
+  const descLine = desc?.trim() ? `\n${desc.trim()}\n` : '';
+  return (
+    `# ${name}\n` +
+    descLine +
+    `\n## Getting Started\n\n` +
+    `\`\`\`bash\n# clone the repo\ngit clone <your-repo-url>\n\`\`\`\n\n` +
+    `## License\n\nMIT\n`
+  );
 }
