@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { select, input, confirm, Separator } from '@inquirer/prompts';
 import ora from 'ora';
 import { ensureGhCli, getRepoFullName, ghJson, ghRun } from '../lib/github.js';
 import { panel, div } from '../lib/ui.js';
@@ -68,14 +68,13 @@ async function viewPR() {
 
   if (!prs || !prs.length) { console.log(chalk.yellow('\nℹ  No open PRs.\n')); return; }
 
-  const { prNum } = await inquirer.prompt([{
-    type: 'list', name: 'prNum',
+  const prNum = await select({
     message: 'Select a PR to view:',
     choices: prs.map(p => ({
       name: `#${p.number} — ${p.title.slice(0, 50)} [${p.headRefName}]`,
       value: p.number,
     })),
-  }]);
+  });
 
   const sp2 = ora('Loading PR details…').start();
   const detail = ghJson(
@@ -104,16 +103,13 @@ async function viewPR() {
 }
 
 async function createPR() {
-  const { title, body, base, draft } = await inquirer.prompt([
-    { type: 'input',   name: 'title', message: '📝 PR title:', validate: i => i.trim() ? true : 'Required' },
-    { type: 'input',   name: 'body',  message: '📄 PR description (optional):', default: '' },
-    { type: 'input',   name: 'base',  message: '🎯 Base branch to merge into:', default: 'main' },
-    { type: 'confirm', name: 'draft', message: '📋 Create as draft PR?', default: false },
-  ]);
+  const title = await input({ message: '📝 PR title:', validate: i => i.trim() ? true : 'Required' });
+  const body  = await input({ message: '📄 PR description (optional):', default: '' });
+  const base  = await input({ message: '🎯 Base branch to merge into:', default: 'main' });
+  const draft = await confirm({ message: '📋 Create as draft PR?', default: false });
 
   const sp = ora(chalk.blue('Creating pull request…')).start();
   const draftFlag = draft ? ' --draft' : '';
-  // Sanitize for shell
   const safeTitle = title.replace(/"/g, '\\"');
   const safeBody  = body.replace(/"/g, '\\"');
   const result = ghRun(
@@ -137,8 +133,7 @@ async function mergePR() {
 
   if (!prs || !prs.length) { console.log(chalk.yellow('\nℹ  No open PRs.\n')); return; }
 
-  const { prNum } = await inquirer.prompt([{
-    type: 'list', name: 'prNum',
+  const prNum = await select({
     message: 'Select PR to merge:',
     choices: prs.map(p => {
       const mergeStatus = p.mergeable === 'MERGEABLE'
@@ -146,39 +141,36 @@ async function mergePR() {
         : chalk.red(`[⚠ ${p.mergeable || 'blocked'}]`);
       return { name: `#${p.number} — ${p.title.slice(0, 50)} ${mergeStatus}`, value: p.number };
     }),
-  }]);
+  });
 
   const pr = prs.find(p => p.number === prNum);
 
   if (pr.mergeable !== 'MERGEABLE') {
     console.log(chalk.red.bold(`\n⚠️  PR #${prNum} is NOT mergeable (${pr.mergeable || 'conflict/checks failing'}).\n`));
-    const { proceed } = await inquirer.prompt([{
-      type: 'list', name: 'proceed',
+    const proceed = await select({
       message: chalk.yellow('What would you like to do?'),
       choices: [
-        { name: '🚀 Attempt merge anyway (may fail on GitHub)',   value: 'try' },
-        { name: '🔙 Abort — fix the PR first',                    value: 'abort' },
+        { name: '🚀 Attempt merge anyway (may fail on GitHub)', value: 'try' },
+        { name: '🔙 Abort — fix the PR first',                  value: 'abort' },
       ],
-    }]);
+    });
     if (proceed === 'abort') { console.log(chalk.cyan('\n  Aborted.\n')); return; }
   }
 
-  const { strategy } = await inquirer.prompt([{
-    type: 'list', name: 'strategy',
+  const strategy = await select({
     message: 'Merge strategy:',
     choices: [
-      { name: '🔀 Merge commit (preserve full history)',  value: '--merge' },
+      { name: '🔀 Merge commit (preserve full history)',   value: '--merge' },
       { name: '🧩 Squash & merge (combine into 1 commit)', value: '--squash' },
-      { name: '⏭️  Rebase & merge (linear history)',       value: '--rebase' },
+      { name: '⏭️  Rebase & merge (linear history)',        value: '--rebase' },
     ],
-  }]);
+  });
 
-  const { confirm } = await inquirer.prompt([{
-    type: 'confirm', name: 'confirm',
+  const confirmed = await confirm({
     message: chalk.yellow(`Merge PR #${prNum}?`),
     default: true,
-  }]);
-  if (!confirm) { console.log(chalk.cyan('\n  Aborted.\n')); return; }
+  });
+  if (!confirmed) { console.log(chalk.cyan('\n  Aborted.\n')); return; }
 
   const sp2 = ora(chalk.blue(`Merging PR #${prNum}…`)).start();
   const result = ghRun(`gh pr merge ${prNum} ${strategy} --delete-branch`);
@@ -230,12 +222,10 @@ async function listIssues() {
 }
 
 async function createIssue() {
-  const { title, body, label, assignee } = await inquirer.prompt([
-    { type: 'input', name: 'title',    message: '🐛 Issue title:', validate: i => i.trim() ? true : 'Required' },
-    { type: 'input', name: 'body',     message: '📄 Description (optional):', default: '' },
-    { type: 'input', name: 'label',    message: '🏷️  Label (e.g. bug, enhancement — leave blank to skip):', default: '' },
-    { type: 'input', name: 'assignee', message: '👤 Assign to GitHub username (leave blank to skip):', default: '' },
-  ]);
+  const title    = await input({ message: '🐛 Issue title:', validate: i => i.trim() ? true : 'Required' });
+  const body     = await input({ message: '📄 Description (optional):', default: '' });
+  const label    = await input({ message: '🏷️  Label (e.g. bug, enhancement — leave blank to skip):', default: '' });
+  const assignee = await input({ message: '👤 Assign to GitHub username (leave blank to skip):', default: '' });
 
   const sp = ora(chalk.blue('Creating issue…')).start();
   const safeTitle = title.replace(/"/g, '\\"');
@@ -263,14 +253,13 @@ async function viewIssue() {
 
   if (!issues || !issues.length) { console.log(chalk.yellow('\nℹ  No open issues.\n')); return; }
 
-  const { issueNum } = await inquirer.prompt([{
-    type: 'list', name: 'issueNum',
+  const issueNum = await select({
     message: 'Select an issue to view:',
     choices: issues.map(i => ({
       name: `#${i.number} — ${i.title.slice(0, 60)}`,
       value: i.number,
     })),
-  }]);
+  });
 
   const sp2 = ora('Loading issue details…').start();
   const detail = ghJson(
@@ -280,7 +269,7 @@ async function viewIssue() {
 
   if (!detail) { console.log(chalk.red('\n✖  Could not load issue details.\n')); return; }
 
-  const labels = (detail.labels || []).map(l => chalk.bgGray.white(` ${l.name} `)).join(' ') || chalk.gray('none');
+  const labels    = (detail.labels || []).map(l => chalk.bgGray.white(` ${l.name} `)).join(' ') || chalk.gray('none');
   const assignees = (detail.assignees || []).map(a => chalk.cyan('@' + a.login)).join(', ') || chalk.gray('unassigned');
 
   console.log(panel(
@@ -304,17 +293,12 @@ async function closeIssue() {
 
   if (!issues || !issues.length) { console.log(chalk.yellow('\nℹ  No open issues.\n')); return; }
 
-  const { issueNum } = await inquirer.prompt([{
-    type: 'list', name: 'issueNum',
+  const issueNum = await select({
     message: 'Select an issue to close:',
     choices: issues.map(i => ({ name: `#${i.number} — ${i.title.slice(0, 55)}`, value: i.number })),
-  }]);
+  });
 
-  const { comment } = await inquirer.prompt([{
-    type: 'input', name: 'comment',
-    message: '💬 Closing comment (optional):',
-    default: '',
-  }]);
+  const comment = await input({ message: '💬 Closing comment (optional):', default: '' });
 
   const sp2 = ora(chalk.blue('Closing issue…')).start();
   let cmd = `gh issue close ${issueNum}`;
@@ -367,14 +351,13 @@ async function viewActionLogs() {
 
   if (!runs || !runs.length) { console.log(chalk.yellow('\nℹ  No runs found.\n')); return; }
 
-  const { runId } = await inquirer.prompt([{
-    type: 'list', name: 'runId',
+  const runId = await select({
     message: 'Select a run to view logs:',
     choices: runs.map(r => ({
       name: `${r.name} — ${r.conclusion || r.status} [${r.headBranch}]`,
       value: r.databaseId,
     })),
-  }]);
+  });
 
   console.log(chalk.cyan('\n  Opening logs in browser…\n'));
   ghRun(`gh run view ${runId} --web`);
@@ -394,20 +377,18 @@ async function rerunAction() {
     return;
   }
 
-  const { runId } = await inquirer.prompt([{
-    type: 'list', name: 'runId',
+  const runId = await select({
     message: 'Select a run to re-run:',
     choices: failed.map(r => ({
       name: `${r.name} (${chalk.red(r.conclusion)})`,
       value: r.databaseId,
     })),
-  }]);
+  });
 
-  const { failed: failedOnly } = await inquirer.prompt([{
-    type: 'confirm', name: 'failed',
+  const failedOnly = await confirm({
     message: 'Re-run only failed jobs? (No = re-run all jobs)',
     default: true,
-  }]);
+  });
 
   const sp2 = ora(chalk.blue('Re-running workflow…')).start();
   const flag = failedOnly ? ' --failed' : '';
@@ -469,28 +450,27 @@ export default function registerGhSuite(program) {
     console.log(chalk.cyan.bold(`\n🐙 GitHub Integration Hub\n`) +
                 chalk.gray(`   Repository: ${chalk.white(repoName)}\n`));
 
-    const { section } = await inquirer.prompt([{
-      type: 'list', name: 'section',
+    const section = await select({
       message: 'What would you like to do?',
       choices: [
-        new inquirer.Separator('── Pull Requests ──────────────────'),
+        new Separator('── Pull Requests ──────────────────'),
         { name: '📋 List open PRs',                  value: 'prs' },
         { name: '🔍 View a PR in detail',             value: 'pr-view' },
         { name: '➕ Create a PR',                     value: 'pr-create' },
         { name: '🔀 Merge a PR',                      value: 'pr-merge' },
-        new inquirer.Separator('── Issues ─────────────────────────'),
+        new Separator('── Issues ─────────────────────────'),
         { name: '🐛 List open issues',                value: 'issues' },
         { name: '🔍 View an issue in detail',         value: 'issue-view' },
         { name: '➕ Create an issue',                 value: 'issue-create' },
         { name: '✅ Close an issue',                  value: 'issue-close' },
-        new inquirer.Separator('── GitHub Actions ──────────────────'),
+        new Separator('── GitHub Actions ──────────────────'),
         { name: '⚙️  View recent workflow runs',       value: 'actions' },
         { name: '📋 View run logs (browser)',          value: 'action-logs' },
         { name: '🔄 Re-run a failed workflow',         value: 'rerun' },
-        new inquirer.Separator(),
+        new Separator(),
         { name: '❌ Exit',                            value: 'exit' },
       ],
-    }]);
+    });
 
     const map = {
       'prs':          listPRs,

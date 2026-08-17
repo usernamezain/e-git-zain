@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import inquirer from 'inquirer';
+import { select, input, confirm } from '@inquirer/prompts';
 import { git, ensureRepo, checkAndSetupRemote, ensureAuthenticated, ensureGitIgnore } from '../lib/git.js';
 import { logPush } from '../lib/history.js';
 import { panel, fileIcon, div } from '../lib/ui.js';
@@ -47,23 +47,20 @@ export default function registerPush(program) {
 
       // ── Commit message ─────────────────────────────────────────────────────
       if (!message) {
-        const a = await inquirer.prompt([{
-          type: 'input', name: 'msg',
+        message = await input({
           message: '✏️  Commit message:',
           validate: i => i.trim() ? true : 'Commit message is required',
-        }]);
-        message = a.msg;
+        });
       }
 
       // ── Force push safety confirmation ─────────────────────────────────────
       if (opts.force) {
         console.log(chalk.red.bold('\n⚠️  FORCE PUSH — This will OVERWRITE remote history!\n'));
-        const { confirm } = await inquirer.prompt([{
-          type: 'confirm', name: 'confirm',
+        const confirmed = await confirm({
           message: chalk.red('Are you absolutely sure you want to force push?'),
           default: false,
-        }]);
-        if (!confirm) {
+        });
+        if (!confirmed) {
           console.log(chalk.cyan('\n  Aborted force push. Nothing was changed.\n'));
           process.exit(0);
         }
@@ -81,11 +78,10 @@ export default function registerPush(program) {
       // Offer to rename master → main
       if (branch === 'master') {
         sp.stop();
-        const { rename } = await inquirer.prompt([{
-          type: 'confirm', name: 'rename',
+        const rename = await confirm({
           message: '⚠️  Rename "master" → "main"?',
           default: true,
-        }]);
+        });
         if (rename) {
           await git.raw(['branch', '-m', 'master', 'main']);
           branch = 'main';

@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import inquirer from 'inquirer';
+import { select, input, confirm } from '@inquirer/prompts';
 import { git, ensureRepo } from '../lib/git.js';
 import { panel } from '../lib/ui.js';
 
@@ -10,23 +10,25 @@ export default function registerStash(program) {
     .action(async () => {
       await ensureRepo();
 
-      const { action } = await inquirer.prompt([{ type: 'list', name: 'action', message: '📦 Stash action:',
+      const action = await select({
+        message: '📦 Stash action:',
         choices: [
           { name: '💾  Save current changes to stash', value: 'save' },
-          { name: '📋  List all stashes', value: 'list' },
-          { name: '⬆️   Pop (restore latest stash)', value: 'pop' },
-          { name: '🔁  Apply a specific stash', value: 'apply' },
-          { name: '🗑️   Drop a stash', value: 'drop' },
-          { name: '🧹  Clear all stashes', value: 'clear' },
-          { name: '❌  Exit', value: 'exit' },
-        ] }]);
+          { name: '📋  List all stashes',               value: 'list' },
+          { name: '⬆️   Pop (restore latest stash)',    value: 'pop' },
+          { name: '🔁  Apply a specific stash',         value: 'apply' },
+          { name: '🗑️   Drop a stash',                  value: 'drop' },
+          { name: '🧹  Clear all stashes',              value: 'clear' },
+          { name: '❌  Exit',                           value: 'exit' },
+        ],
+      });
 
       if (action === 'exit') return;
 
       if (action === 'save') {
         const status = await git.status();
         if (!status.files.length) { console.log(chalk.yellow('\nℹ  Nothing to stash.\n')); return; }
-        const { name } = await inquirer.prompt([{ type: 'input', name: 'name', message: '📝 Stash name (optional):', default: `stash-${Date.now()}` }]);
+        const name = await input({ message: '📝 Stash name (optional):', default: `stash-${Date.now()}` });
         const sp = ora('Saving stash…').start();
         await git.stash(['push', '-m', name]);
         sp.succeed(chalk.green(`Stash "${name}" saved! (${status.files.length} file(s))`));
@@ -52,14 +54,14 @@ export default function registerStash(program) {
         const stashes = await git.stashList();
         if (!stashes.all.length) { console.log(chalk.yellow('\nℹ  No stashes.\n')); return; }
         const choices = stashes.all.map((s, i) => ({ name: `[${i}] ${s.message || s.hash?.slice(0, 7)}`, value: i }));
-        const { idx } = await inquirer.prompt([{ type: 'list', name: 'idx', message: action === 'apply' ? 'Apply which stash?' : 'Drop which stash?', choices }]);
+        const idx = await select({ message: action === 'apply' ? 'Apply which stash?' : 'Drop which stash?', choices });
         const sp = ora(action === 'apply' ? 'Applying…' : 'Dropping…').start();
         if (action === 'apply') { await git.stash(['apply', `stash@{${idx}}`]); sp.succeed(chalk.green('Stash applied!')); }
         else { await git.stash(['drop', `stash@{${idx}}`]); sp.succeed(chalk.green('Stash dropped.')); }
       }
 
       if (action === 'clear') {
-        const { ok } = await inquirer.prompt([{ type: 'confirm', name: 'ok', message: chalk.red('Clear ALL stashes? Cannot undo!'), default: false }]);
+        const ok = await confirm({ message: chalk.red('Clear ALL stashes? Cannot undo!'), default: false });
         if (ok) { await git.stash(['clear']); console.log(chalk.green('\n✅ All stashes cleared.\n')); }
       }
     });

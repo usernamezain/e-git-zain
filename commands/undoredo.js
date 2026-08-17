@@ -1,12 +1,12 @@
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { confirm } from '@inquirer/prompts';
 import ora from 'ora';
 import { git, ensureRepo } from '../lib/git.js';
 import { readHistory } from '../lib/history.js';
 
 async function restoreTo(hash, extraWarning = false) {
   if (extraWarning) console.log(chalk.red.bold('⚠️  This state is more than 30 minutes old!'));
-  const { ok } = await inquirer.prompt([{ type: 'confirm', name: 'ok', message: chalk.yellow('Restore to this state? (destructive)'), default: false }]);
+  const ok = await confirm({ message: chalk.yellow('Restore to this state? (destructive)'), default: false });
   if (!ok) { console.log(chalk.cyan('\nAborted.\n')); return; }
   const sp = ora(chalk.blue('Restoring…')).start();
   await git.reset(['--hard', hash]);

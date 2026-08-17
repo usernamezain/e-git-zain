@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { select, input, confirm } from '@inquirer/prompts';
 import { git, ensureRepo } from '../lib/git.js';
 import { readHistory } from '../lib/history.js';
 import { div } from '../lib/ui.js';
@@ -12,7 +12,7 @@ async function viewDiff(hash) {
 }
 
 async function restoreTo(hash) {
-  const { ok } = await inquirer.prompt([{ type: 'confirm', name: 'ok', message: chalk.yellow('⚠️  Restore to this state? (destructive)'), default: false }]);
+  const ok = await confirm({ message: chalk.yellow('⚠️  Restore to this state? (destructive)'), default: false });
   if (!ok) { console.log(chalk.cyan('\nAborted. Files safe.\n')); return; }
   const sp = (await import('ora')).default(chalk.blue('Restoring…')).start();
   await git.reset(['--hard', hash]);
@@ -32,15 +32,21 @@ export function registerHistory(program) {
         name: `${chalk.gray((e.displayTimestamp || e.timestamp).slice(0, 22).padEnd(24))} ${chalk.green((e.branch || 'main').padEnd(12))} ${e.message}`,
         value: e,
       }));
-      choices.push(new inquirer.Separator(), { name: '❌ Exit', value: 'exit' });
+      choices.push({ name: '❌ Exit', value: 'exit' });
 
-      const { sel } = await inquirer.prompt([{ type: 'list', name: 'sel', message: 'Select a push:', choices, pageSize: 15 }]);
+      const sel = await select({ message: 'Select a push:', choices, pageSize: 15 });
       if (sel === 'exit' || !sel) return;
 
       if (sel.hash) {
         await viewDiff(sel.hash);
-        const { act } = await inquirer.prompt([{ type: 'list', name: 'act', message: 'Action:',
-          choices: [{ name: '🔙 Back', value: 'back' }, { name: '🕰️  Restore to this version', value: 'restore' }, { name: '❌ Exit', value: 'exit' }] }]);
+        const act = await select({
+          message: 'Action:',
+          choices: [
+            { name: '🔙 Back',                     value: 'back' },
+            { name: '🕰️  Restore to this version', value: 'restore' },
+            { name: '❌ Exit',                     value: 'exit' },
+          ],
+        });
         if (act === 'restore') await restoreTo(sel.hash);
       }
     });
@@ -66,7 +72,7 @@ export function registerClear(program) {
   program.command('clear')
     .description('🧹 Clear local push history log.')
     .action(async () => {
-      const { ok } = await inquirer.prompt([{ type: 'confirm', name: 'ok', message: chalk.red('Clear all push history?'), default: false }]);
+      const ok = await confirm({ message: chalk.red('Clear all push history?'), default: false });
       if (!ok) return;
       const { historyPath } = await import('../lib/history.js');
       const p = await historyPath();

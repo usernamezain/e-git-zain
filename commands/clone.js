@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import inquirer from 'inquirer';
+import { input, confirm } from '@inquirer/prompts';
 import { execSync } from 'child_process';
 import simpleGit from 'simple-git';
 import { panel } from '../lib/ui.js';
@@ -14,10 +14,8 @@ export default function registerClone(program) {
       const repoName = url.split('/').pop()?.replace('.git', '') || 'repo';
       const targetDir = opts.dir || repoName;
 
-      const { install, openCode } = await inquirer.prompt([
-        { type: 'confirm', name: 'install', message: '📦 Auto-install npm dependencies (if package.json found)?', default: true },
-        { type: 'confirm', name: 'openCode', message: '💻 Open in VS Code after clone?', default: false },
-      ]);
+      const install  = await confirm({ message: '📦 Auto-install npm dependencies (if package.json found)?', default: true });
+      const openCode = await confirm({ message: '💻 Open in VS Code after clone?', default: false });
 
       const sp = ora(chalk.blue(`Cloning "${repoName}"…`)).start();
       try {

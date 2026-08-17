@@ -1,8 +1,8 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import inquirer from 'inquirer';
+import { input, confirm } from '@inquirer/prompts';
 import { git, ensureRepo } from '../lib/git.js';
-import { panel, div } from '../lib/ui.js';
+import { panel } from '../lib/ui.js';
 
 export default function registerTag(program) {
   program.command('tag')
@@ -19,16 +19,14 @@ export default function registerTag(program) {
       }
 
       const lastTag = tags.all[tags.all.length - 1] || 'v0.0.0';
-      const { version, message, pushTag } = await inquirer.prompt([
-        {
-          type: 'input', name: 'version',
-          message: `🏷️  New tag version (last: ${chalk.yellow(lastTag)}):`,
-          default: lastTag.replace(/(\d+)$/, n => String(+n + 1)),
-          validate: i => i.trim() ? true : 'Required',
-        },
-        { type: 'input', name: 'message', message: '📝 Tag message (release notes):', validate: i => i.trim() ? true : 'Required' },
-        { type: 'confirm', name: 'pushTag', message: '📤 Push tag to remote?', default: true },
-      ]);
+
+      const version = await input({
+        message: `🏷️  New tag version (last: ${chalk.yellow(lastTag)}):`,
+        default: lastTag.replace(/(\d+)$/, n => String(+n + 1)),
+        validate: i => i.trim() ? true : 'Required',
+      });
+      const message = await input({ message: '📝 Tag message (release notes):', validate: i => i.trim() ? true : 'Required' });
+      const pushTag = await confirm({ message: '📤 Push tag to remote?', default: true });
 
       const sp = ora(chalk.blue(`Creating tag "${version}"…`)).start();
       try {

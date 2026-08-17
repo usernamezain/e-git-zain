@@ -1,6 +1,5 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import inquirer from 'inquirer';
 import chokidar from 'chokidar';
 import { git, ensureRepo } from '../lib/git.js';
 import { logPush } from '../lib/history.js';

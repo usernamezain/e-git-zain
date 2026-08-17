@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import inquirer from 'inquirer';
+import { select, input, confirm } from '@inquirer/prompts';
+import { Separator } from '@inquirer/prompts';
 import { execSync } from 'child_process';
 import { git, ensureRepo, cmdExists } from '../lib/git.js';
 import { panel } from '../lib/ui.js';
@@ -13,13 +14,12 @@ async function doForcePush() {
   console.log(chalk.red.bold(`\n⚠️  FORCE PUSH — "${branch}" to remote\n`));
   console.log(chalk.gray('  This will overwrite remote history. Other collaborators may lose work.\n'));
 
-  const { confirm } = await inquirer.prompt([{
-    type: 'input', name: 'confirm',
+  const confirm_ = await input({
     message: chalk.red(`Type the branch name "${chalk.white.bold(branch)}" to confirm:`),
     validate: i => i.trim() === branch ? true : `Type exactly: ${branch}`,
-  }]);
+  });
 
-  if (confirm.trim() !== branch) {
+  if (confirm_.trim() !== branch) {
     console.log(chalk.cyan('\n  Aborted. Nothing was changed.\n'));
     return;
   }
@@ -52,12 +52,10 @@ async function doDeleteBranch(branchName) {
       console.log(chalk.yellow('\n  No other branches to delete.\n'));
       return;
     }
-    const { target } = await inquirer.prompt([{
-      type: 'list', name: 'target',
+    branchName = await select({
       message: '🌿 Which branch do you want to nuke?',
-      choices: others,
-    }]);
-    branchName = target;
+      choices: others.map(b => ({ name: b, value: b })),
+    });
   }
 
   if (branchName === summary.current) {
@@ -67,12 +65,11 @@ async function doDeleteBranch(branchName) {
   }
 
   console.log(chalk.red.bold(`\n💣 Branch Deletion: "${branchName}"\n`));
-  const { confirm } = await inquirer.prompt([{
-    type: 'confirm', name: 'confirm',
+  const confirmed = await confirm({
     message: chalk.red(`Delete local AND remote branch "${branchName}"? This cannot be undone.`),
     default: false,
-  }]);
-  if (!confirm) { console.log(chalk.cyan('\n  Aborted. Branch is safe.\n')); return; }
+  });
+  if (!confirmed) { console.log(chalk.cyan('\n  Aborted. Branch is safe.\n')); return; }
 
   const sp = ora('Deleting branch…').start();
   const results = { local: '–', remote: '–' };
@@ -126,18 +123,16 @@ async function doDeleteRepo() {
   console.log(chalk.red('  This will PERMANENTLY DELETE the remote repository on GitHub!'));
   console.log(chalk.red('  This action CANNOT be undone. All PRs, issues, and code will be lost.\n'));
 
-  const { step1 } = await inquirer.prompt([{
-    type: 'confirm', name: 'step1',
+  const step1 = await confirm({
     message: chalk.red.bold('Are you 100% sure you want to permanently delete this repository?'),
     default: false,
-  }]);
+  });
   if (!step1) { console.log(chalk.cyan('\n  Aborted. Repository is safe.\n')); return; }
 
-  const { confirmName } = await inquirer.prompt([{
-    type: 'input', name: 'confirmName',
+  const confirmName = await input({
     message: chalk.red(`Type the full repository name "${chalk.white.bold(repoInfo)}" to confirm:`),
     validate: i => i.trim() === repoInfo ? true : `Must match exactly: ${repoInfo}`,
-  }]);
+  });
   if (confirmName.trim() !== repoInfo) {
     console.log(chalk.cyan('\n  Name did not match. Aborted.\n'));
     return;
@@ -181,17 +176,16 @@ export default function registerNuke(program) {
       console.log(chalk.red.bold('\n💣 Nuclear Options\n'));
       console.log(chalk.gray('  Use these carefully — most actions are irreversible.\n'));
 
-      const { action } = await inquirer.prompt([{
-        type: 'list', name: 'action',
+      const action = await select({
         message: 'What do you want to do?',
         choices: [
-          { name: '🚀 Force push current branch to remote',      value: 'force-push' },
-          { name: '🌿 Delete a branch (local + remote)',          value: 'branch' },
-          { name: '💀 Delete the entire remote repository',       value: 'repo' },
-          new inquirer.Separator(),
-          { name: '❌ Exit (nothing will change)',                value: 'exit' },
+          { name: '🚀 Force push current branch to remote',    value: 'force-push' },
+          { name: '🌿 Delete a branch (local + remote)',        value: 'branch' },
+          { name: '💀 Delete the entire remote repository',     value: 'repo' },
+          new Separator(),
+          { name: '❌ Exit (nothing will change)',              value: 'exit' },
         ],
-      }]);
+      });
 
       if (action === 'exit')        return;
       if (action === 'force-push')  await doForcePush();

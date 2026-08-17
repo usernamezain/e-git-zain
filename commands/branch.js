@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import inquirer from 'inquirer';
+import { select, input, confirm } from '@inquirer/prompts';
 import { git, ensureRepo } from '../lib/git.js';
 import { panel, div } from '../lib/ui.js';
 
@@ -21,23 +21,23 @@ export default function registerBranch(program) {
         'cyan', '🌿 Local Branches'
       ));
 
-      const { action } = await inquirer.prompt([{ type: 'list', name: 'action', message: 'Action:',
+      const action = await select({
+        message: 'Action:',
         choices: [
-          { name: '✨  Create new branch', value: 'create' },
-          { name: '🔀  Switch branch', value: 'switch' },
-          { name: '✏️   Rename current branch', value: 'rename' },
-          { name: '🗑️   Delete a branch', value: 'delete' },
+          { name: '✨  Create new branch',             value: 'create' },
+          { name: '🔀  Switch branch',                 value: 'switch' },
+          { name: '✏️   Rename current branch',         value: 'rename' },
+          { name: '🗑️   Delete a branch',               value: 'delete' },
           { name: '📤  Push current branch to remote', value: 'push' },
-          { name: '❌  Exit', value: 'exit' },
-        ] }]);
+          { name: '❌  Exit',                          value: 'exit' },
+        ],
+      });
 
       if (action === 'exit') return;
 
       if (action === 'create') {
-        const { name, sw } = await inquirer.prompt([
-          { type: 'input', name: 'name', message: 'Branch name:', validate: i => i.trim() ? true : 'Required' },
-          { type: 'confirm', name: 'sw', message: 'Switch to it?', default: true },
-        ]);
+        const name = await input({ message: 'Branch name:', validate: i => i.trim() ? true : 'Required' });
+        const sw   = await confirm({ message: 'Switch to it?', default: true });
         const sp = ora(chalk.blue(`Creating "${name}"…`)).start();
         await git.checkoutLocalBranch(name);
         if (!sw) await git.checkout(current);
@@ -47,14 +47,14 @@ export default function registerBranch(program) {
       if (action === 'switch') {
         const others = all.filter(b => b !== current);
         if (!others.length) { console.log(chalk.yellow('\nNo other branches.\n')); return; }
-        const { t } = await inquirer.prompt([{ type: 'list', name: 't', message: 'Switch to:', choices: others }]);
+        const t = await select({ message: 'Switch to:', choices: others.map(b => ({ name: b, value: b })) });
         const sp = ora(chalk.blue(`Switching to "${t}"…`)).start();
         await git.checkout(t);
         sp.succeed(chalk.green(`Switched to "${t}"`));
       }
 
       if (action === 'rename') {
-        const { n } = await inquirer.prompt([{ type: 'input', name: 'n', message: `New name for "${current}":`, validate: i => i.trim() ? true : 'Required' }]);
+        const n = await input({ message: `New name for "${current}":`, validate: i => i.trim() ? true : 'Required' });
         const sp = ora('Renaming…').start();
         await git.raw(['branch', '-m', current, n]);
         sp.succeed(chalk.green(`Renamed to "${n}"`));
@@ -63,10 +63,8 @@ export default function registerBranch(program) {
       if (action === 'delete') {
         const del = all.filter(b => b !== current);
         if (!del.length) { console.log(chalk.yellow('\nNo branches to delete.\n')); return; }
-        const { t, force } = await inquirer.prompt([
-          { type: 'list', name: 't', message: 'Delete which?', choices: del },
-          { type: 'confirm', name: 'force', message: 'Force delete?', default: false },
-        ]);
+        const t     = await select({ message: 'Delete which?', choices: del.map(b => ({ name: b, value: b })) });
+        const force = await confirm({ message: 'Force delete?', default: false });
         const sp = ora(chalk.blue(`Deleting "${t}"…`)).start();
         await git.deleteLocalBranch(t, force);
         sp.succeed(chalk.green(`"${t}" deleted.`));

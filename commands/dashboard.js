@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { select, Separator } from '@inquirer/prompts';
 import ora from 'ora';
 import { git } from '../lib/git.js';
 import { readHistory } from '../lib/history.js';
@@ -151,14 +151,13 @@ export default function registerDashboard(program) {
         console.log(`  ${chalk.cyan('Option 2:')} ${chalk.white('Initialize a new git repo here:')}`);
         console.log(chalk.gray('    e-git init\n'));
 
-        const { action } = await inquirer.prompt([{
-          type: 'list', name: 'action',
+        const action = await select({
           message: 'What would you like to do?',
           choices: [
             { name: '🏗️  Initialize a new git repo here  (e-git init)', value: 'init' },
             { name: '❌ Exit',                                            value: 'exit' },
           ],
-        }]);
+        });
 
         if (action === 'init') {
           const { execSync } = await import('child_process');
@@ -197,8 +196,7 @@ export default function registerDashboard(program) {
 
       // ── Quick action menu ──────────────────────────────────────────────────
       console.log(ruler('─'));
-      const { action } = await inquirer.prompt([{
-        type: 'list', name: 'action',
+      const action = await select({
         message: '🎛️  Quick action:',
         choices: [
           { name: '🔄 Refresh dashboard',                value: 'refresh' },
@@ -207,10 +205,10 @@ export default function registerDashboard(program) {
           { name: '🐙 GitHub hub       (e-git github)',  value: 'github' },
           { name: '💣 Nuclear options  (e-git nuke)',    value: 'nuke' },
           { name: '📜 Push history     (e-git history)', value: 'history' },
-          new inquirer.Separator(),
+          new Separator(),
           { name: '❌ Exit dashboard',                   value: 'exit' },
         ],
-      }]);
+      });
 
       if (action === 'exit') {
         console.log(chalk.cyan('\n  Goodbye! 👋\n'));
