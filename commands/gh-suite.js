@@ -400,6 +400,53 @@ async function rerunAction() {
   }
 }
 
+// ── Exported action — called directly by dashboard (same process, same TTY) ──
+export async function runGithubHub() {
+  if (!ensureGhCli()) return;
+
+  const repoName = getRepoFullName() || 'your repo';
+  console.log(chalk.cyan.bold(`\n🐙 GitHub Integration Hub\n`) +
+              chalk.gray(`   Repository: ${chalk.white(repoName)}\n`));
+
+  const section = await select({
+    message: 'What would you like to do?',
+    choices: [
+      new Separator('── Pull Requests ──────────────────'),
+      { name: '📋 List open PRs',                  value: 'prs' },
+      { name: '🔍 View a PR in detail',             value: 'pr-view' },
+      { name: '➕ Create a PR',                     value: 'pr-create' },
+      { name: '🔀 Merge a PR',                      value: 'pr-merge' },
+      new Separator('── Issues ─────────────────────────'),
+      { name: '🐛 List open issues',                value: 'issues' },
+      { name: '🔍 View an issue in detail',         value: 'issue-view' },
+      { name: '➕ Create an issue',                 value: 'issue-create' },
+      { name: '✅ Close an issue',                  value: 'issue-close' },
+      new Separator('── GitHub Actions ──────────────────'),
+      { name: '⚙️  View recent workflow runs',       value: 'actions' },
+      { name: '📋 View run logs (browser)',          value: 'action-logs' },
+      { name: '🔄 Re-run a failed workflow',         value: 'rerun' },
+      new Separator(),
+      { name: '❌ Exit',                            value: 'exit' },
+    ],
+  });
+
+  const map = {
+    'prs':          listPRs,
+    'pr-view':      viewPR,
+    'pr-create':    createPR,
+    'pr-merge':     mergePR,
+    'issues':       listIssues,
+    'issue-view':   viewIssue,
+    'issue-create': createIssue,
+    'issue-close':  closeIssue,
+    'actions':      listActions,
+    'action-logs':  viewActionLogs,
+    'rerun':        rerunAction,
+  };
+
+  if (section !== 'exit' && map[section]) await map[section]();
+}
+
 // ── Main Command ──────────────────────────────────────────────────────────────
 export default function registerGhSuite(program) {
   const gh = program
@@ -443,49 +490,5 @@ export default function registerGhSuite(program) {
   });
 
   // ── Interactive hub (called with just `e-git github` or `e-git gh`) ───────
-  gh.action(async () => {
-    if (!ensureGhCli()) return;
-
-    const repoName = getRepoFullName() || 'your repo';
-    console.log(chalk.cyan.bold(`\n🐙 GitHub Integration Hub\n`) +
-                chalk.gray(`   Repository: ${chalk.white(repoName)}\n`));
-
-    const section = await select({
-      message: 'What would you like to do?',
-      choices: [
-        new Separator('── Pull Requests ──────────────────'),
-        { name: '📋 List open PRs',                  value: 'prs' },
-        { name: '🔍 View a PR in detail',             value: 'pr-view' },
-        { name: '➕ Create a PR',                     value: 'pr-create' },
-        { name: '🔀 Merge a PR',                      value: 'pr-merge' },
-        new Separator('── Issues ─────────────────────────'),
-        { name: '🐛 List open issues',                value: 'issues' },
-        { name: '🔍 View an issue in detail',         value: 'issue-view' },
-        { name: '➕ Create an issue',                 value: 'issue-create' },
-        { name: '✅ Close an issue',                  value: 'issue-close' },
-        new Separator('── GitHub Actions ──────────────────'),
-        { name: '⚙️  View recent workflow runs',       value: 'actions' },
-        { name: '📋 View run logs (browser)',          value: 'action-logs' },
-        { name: '🔄 Re-run a failed workflow',         value: 'rerun' },
-        new Separator(),
-        { name: '❌ Exit',                            value: 'exit' },
-      ],
-    });
-
-    const map = {
-      'prs':          listPRs,
-      'pr-view':      viewPR,
-      'pr-create':    createPR,
-      'pr-merge':     mergePR,
-      'issues':       listIssues,
-      'issue-view':   viewIssue,
-      'issue-create': createIssue,
-      'issue-close':  closeIssue,
-      'actions':      listActions,
-      'action-logs':  viewActionLogs,
-      'rerun':        rerunAction,
-    };
-
-    if (section !== 'exit' && map[section]) await map[section]();
-  });
+  gh.action(runGithubHub);
 }

@@ -19,37 +19,39 @@ async function restoreTo(hash) {
   sp.succeed(chalk.green('Files restored! 🕰️'));
 }
 
+export async function runHistory() {
+  await ensureRepo();
+  const history = await readHistory();
+  if (!history.length) { console.log(chalk.yellow('\nℹ  No push history.\n')); return; }
+
+  console.log(chalk.cyan.bold('\n📜 Push History:\n'));
+  const choices = history.map(e => ({
+    name: `${chalk.gray((e.displayTimestamp || e.timestamp).slice(0, 22).padEnd(24))} ${chalk.green((e.branch || 'main').padEnd(12))} ${e.message}`,
+    value: e,
+  }));
+  choices.push({ name: '❌ Exit', value: 'exit' });
+
+  const sel = await select({ message: 'Select a push:', choices, pageSize: 15 });
+  if (sel === 'exit' || !sel) return;
+
+  if (sel.hash) {
+    await viewDiff(sel.hash);
+    const act = await select({
+      message: 'Action:',
+      choices: [
+        { name: '🔙 Back',                     value: 'back' },
+        { name: '🕰️  Restore to this version', value: 'restore' },
+        { name: '❌ Exit',                     value: 'exit' },
+      ],
+    });
+    if (act === 'restore') await restoreTo(sel.hash);
+  }
+}
+
 export function registerHistory(program) {
   program.command('history')
     .description('📜 Interactive push history — browse, diff, restore any version.')
-    .action(async () => {
-      await ensureRepo();
-      const history = await readHistory();
-      if (!history.length) { console.log(chalk.yellow('\nℹ  No push history.\n')); return; }
-
-      console.log(chalk.cyan.bold('\n📜 Push History:\n'));
-      const choices = history.map(e => ({
-        name: `${chalk.gray((e.displayTimestamp || e.timestamp).slice(0, 22).padEnd(24))} ${chalk.green((e.branch || 'main').padEnd(12))} ${e.message}`,
-        value: e,
-      }));
-      choices.push({ name: '❌ Exit', value: 'exit' });
-
-      const sel = await select({ message: 'Select a push:', choices, pageSize: 15 });
-      if (sel === 'exit' || !sel) return;
-
-      if (sel.hash) {
-        await viewDiff(sel.hash);
-        const act = await select({
-          message: 'Action:',
-          choices: [
-            { name: '🔙 Back',                     value: 'back' },
-            { name: '🕰️  Restore to this version', value: 'restore' },
-            { name: '❌ Exit',                     value: 'exit' },
-          ],
-        });
-        if (act === 'restore') await restoreTo(sel.hash);
-      }
-    });
+    .action(runHistory);
 }
 
 export function registerList(program) {

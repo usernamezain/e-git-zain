@@ -5,6 +5,11 @@ import { git } from '../lib/git.js';
 import { readHistory } from '../lib/history.js';
 import { panel, div, badge } from '../lib/ui.js';
 import { ensureGhCli, ghJson } from '../lib/github.js';
+import { runBranch } from './branch.js';
+import { runStash } from './stash.js';
+import { runNuke } from './nuke.js';
+import { runHistory } from './history.js';
+import { runGithubHub } from './gh-suite.js';
 
 // ── Display helpers ───────────────────────────────────────────────────────────
 function ruler(char = '═', len = 66) {
@@ -108,7 +113,6 @@ async function renderHistory() {
 }
 
 async function renderActions() {
-  // Try gh CLI but fail silently — not everyone has it
   try {
     const runs = ghJson('gh run list --json name,status,conclusion,headBranch --limit 5');
     if (!runs || !runs.length) return;
@@ -126,119 +130,123 @@ async function renderActions() {
   }
 }
 
-// ── Main Command ──────────────────────────────────────────────────────────────
+// ── Exported TUI Action loop (run entirely in-process, same TTY, no subprocesses) ──
+export async function runDashboard(opts = {}) {
+  while (true) {
+    const isRepo = await git.checkIsRepo().catch(() => false);
+    if (!isRepo) {
+      process.stdout.write('\x1Bc');
+      console.log(chalk.cyan.bold(`
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║  🖥️   E-GIT DASHBOARD                                   v4.1.0  ║
+  ╚══════════════════════════════════════════════════════════════════╝`));
+      console.log(chalk.red.bold('\n  ✖  No git repository found in this folder.\n'));
+      console.log(chalk.gray(`  Current directory: ${chalk.white(process.cwd())}\n`));
+      console.log(chalk.yellow('  The dashboard needs to be run from inside a git project.\n'));
+      console.log(`  ${chalk.cyan('Option 1:')} ${chalk.white('Navigate into an existing project first:')}`);
+      console.log(chalk.gray('    cd my-project'));
+      console.log(chalk.gray('    e-git dash\n'));
+      console.log(`  ${chalk.cyan('Option 2:')} ${chalk.white('Initialize a new git repo here:')}`);
+      console.log(chalk.gray('    e-git init\n'));
+
+      const action = await select({
+        message: 'What would you like to do?',
+        choices: [
+          { name: '🏗️  Initialize a new git repo here  (e-git init)', value: 'init' },
+          { name: '❌ Exit',                                            value: 'exit' },
+        ],
+      });
+
+      if (action === 'init') {
+        const { default: registerInit } = await import('./init.js');
+        // Lazy-load and run directly in the same process
+        const dummyProgram = {
+          command: () => dummyProgram,
+          description: () => dummyProgram,
+          action: (cb) => { cb(); }
+        };
+        registerInit(dummyProgram);
+        continue;
+      }
+      return;
+    }
+
+    const sp = ora(chalk.blue('Loading dashboard…')).start();
+    const status = await git.status();
+    sp.stop();
+
+    // ── Clear & Header ─────────────────────────────────────────────────────
+    process.stdout.write('\x1Bc'); // cross-platform clear
+    const versionBadge = chalk.gray('v4.1.0');
+    const branchBadge  = chalk.cyan.bold(status.current || 'unknown');
+    const timeBadge    = chalk.gray(new Date().toLocaleString());
+
+    console.log(chalk.cyan.bold(`
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║  🖥️   E-GIT DASHBOARD                                   ${versionBadge}  ║
+  ║  Branch: ${branchBadge.padEnd(58)}║
+  ╚══════════════════════════════════════════════════════════════════╝`));
+    console.log(chalk.gray(`  ${timeBadge}\n`));
+
+    // ── Render sections ────────────────────────────────────────────────────
+    await renderStatus(status);
+    await renderBranches(status);
+    await renderCommits();
+    await renderStashes();
+    await renderHistory();
+    if (opts.actions !== false) await renderActions();
+
+    // ── Quick action menu ──────────────────────────────────────────────────
+    console.log(ruler('─'));
+    const action = await select({
+      message: '🎛️  Quick action:',
+      choices: [
+        { name: '🔄 Refresh dashboard',                value: 'refresh' },
+        { name: '🌿 Branch manager   (e-git branch)',  value: 'branch' },
+        { name: '📦 Stash manager    (e-git stash)',   value: 'stash' },
+        { name: '🐙 GitHub hub       (e-git github)',  value: 'github' },
+        { name: '💣 Nuclear options  (e-git nuke)',    value: 'nuke' },
+        { name: '📜 Push history     (e-git history)', value: 'history' },
+        new Separator(),
+        { name: '❌ Exit dashboard',                   value: 'exit' },
+      ],
+    });
+
+    if (action === 'exit') {
+      console.log(chalk.cyan('\n  Goodbye! 👋\n'));
+      return;
+    }
+
+    if (action === 'refresh') {
+      continue;
+    }
+
+    console.log(chalk.cyan(`\n  Launching: ${chalk.white.bold('e-git ' + action)}\n`));
+
+    try {
+      if (action === 'branch')  await runBranch();
+      if (action === 'stash')   await runStash();
+      if (action === 'github')  await runGithubHub();
+      if (action === 'nuke')    await runNuke();
+      if (action === 'history') await runHistory();
+
+      // Pause momentarily or ask to press Enter so they see the result before dashboard redraws
+      console.log(chalk.gray('\nPress Enter to return to Dashboard...'));
+      await select({ message: '', choices: [{ name: 'Return', value: 'ret' }] });
+    } catch (err) {
+      console.error(chalk.red('\n✖  Error running command:'), err);
+      console.log(chalk.gray('\nPress Enter to return to Dashboard...'));
+      await select({ message: '', choices: [{ name: 'Return', value: 'ret' }] });
+    }
+  }
+}
+
+// ── Commander registration ────────────────────────────────────────────────────
 export default function registerDashboard(program) {
   program
     .command('dashboard')
     .alias('dash')
     .description('🖥️  Interactive TUI dashboard — full repo overview at a glance.')
     .option('--no-actions', 'Skip GitHub Actions panel (faster, no gh CLI needed)')
-    .action(async (opts) => {
-      // ── Graceful repo check ────────────────────────────────────────────────
-      const isRepo = await git.checkIsRepo().catch(() => false);
-      if (!isRepo) {
-        process.stdout.write('\x1Bc');
-        console.log(chalk.cyan.bold(`
-  ╔══════════════════════════════════════════════════════════════════╗
-  ║  🖥️   E-GIT DASHBOARD                                   v4.0.0  ║
-  ╚══════════════════════════════════════════════════════════════════╝`));
-        console.log(chalk.red.bold('\n  ✖  No git repository found in this folder.\n'));
-        console.log(chalk.gray(`  Current directory: ${chalk.white(process.cwd())}\n`));
-        console.log(chalk.yellow('  The dashboard needs to be run from inside a git project.\n'));
-        console.log(`  ${chalk.cyan('Option 1:')} ${chalk.white('Navigate into an existing project first:')}`);
-        console.log(chalk.gray('    cd my-project'));
-        console.log(chalk.gray('    e-git dash\n'));
-        console.log(`  ${chalk.cyan('Option 2:')} ${chalk.white('Initialize a new git repo here:')}`);
-        console.log(chalk.gray('    e-git init\n'));
-
-        const action = await select({
-          message: 'What would you like to do?',
-          choices: [
-            { name: '🏗️  Initialize a new git repo here  (e-git init)', value: 'init' },
-            { name: '❌ Exit',                                            value: 'exit' },
-          ],
-        });
-
-        if (action === 'init') {
-          const { execSync } = await import('child_process');
-          try {
-            execSync(`node "${process.argv[1]}" init`, { stdio: 'inherit' });
-          } catch {}
-        }
-        return;
-      }
-
-      const sp = ora(chalk.blue('Loading dashboard…')).start();
-      const status = await git.status();
-      sp.stop();
-
-
-      // ── Clear & Header ─────────────────────────────────────────────────────
-      process.stdout.write('\x1Bc'); // cross-platform clear
-      const versionBadge = chalk.gray('v4.0.0');
-      const branchBadge  = chalk.cyan.bold(status.current || 'unknown');
-      const timeBadge    = chalk.gray(new Date().toLocaleString());
-
-      console.log(chalk.cyan.bold(`
-  ╔══════════════════════════════════════════════════════════════════╗
-  ║  🖥️   E-GIT DASHBOARD                                   ${versionBadge}  ║
-  ║  Branch: ${branchBadge.padEnd(58)}║
-  ╚══════════════════════════════════════════════════════════════════╝`));
-      console.log(chalk.gray(`  ${timeBadge}\n`));
-
-      // ── Render sections ────────────────────────────────────────────────────
-      await renderStatus(status);
-      await renderBranches(status);
-      await renderCommits();
-      await renderStashes();
-      await renderHistory();
-      if (opts.actions !== false) await renderActions();
-
-      // ── Quick action menu ──────────────────────────────────────────────────
-      console.log(ruler('─'));
-      const action = await select({
-        message: '🎛️  Quick action:',
-        choices: [
-          { name: '🔄 Refresh dashboard',                value: 'refresh' },
-          { name: '🌿 Branch manager   (e-git branch)',  value: 'branch' },
-          { name: '📦 Stash manager    (e-git stash)',   value: 'stash' },
-          { name: '🐙 GitHub hub       (e-git github)',  value: 'github' },
-          { name: '💣 Nuclear options  (e-git nuke)',    value: 'nuke' },
-          { name: '📜 Push history     (e-git history)', value: 'history' },
-          new Separator(),
-          { name: '❌ Exit dashboard',                   value: 'exit' },
-        ],
-      });
-
-      if (action === 'exit') {
-        console.log(chalk.cyan('\n  Goodbye! 👋\n'));
-        return;
-      }
-
-      if (action === 'refresh') {
-        // Re-run the dashboard by re-importing and re-invoking
-        const { default: register } = await import('./dashboard.js');
-        // We spawn a sub-process so commander re-parses
-        const { execSync } = await import('child_process');
-        execSync(`node "${process.argv[1]}" dashboard`, { stdio: 'inherit' });
-        return;
-      }
-
-      console.log(chalk.cyan(`\n  Launching: ${chalk.white.bold('e-git ' + action)}\n`));
-      // Dynamically import and invoke the chosen command
-      const moduleMap = {
-        branch:  '../commands/branch.js',
-        stash:   '../commands/stash.js',
-        github:  '../commands/gh-suite.js',
-        nuke:    '../commands/nuke.js',
-        history: '../commands/history.js',
-      };
-      if (moduleMap[action]) {
-        // Lazy-load and run via child process for clean commander isolation
-        const { execSync } = await import('child_process');
-        try {
-          execSync(`node "${process.argv[1]}" ${action}`, { stdio: 'inherit' });
-        } catch {}
-      }
-    });
+    .action(runDashboard);
 }

@@ -155,7 +155,30 @@ async function doDeleteRepo() {
   }
 }
 
-// ── Main Command ──────────────────────────────────────────────────────────────
+// ── Exported action — called directly by dashboard (same process, same TTY) ──
+export async function runNuke() {
+  await ensureRepo();
+  console.log(chalk.red.bold('\n💣 Nuclear Options\n'));
+  console.log(chalk.gray('  Use these carefully — most actions are irreversible.\n'));
+
+  const action = await select({
+    message: 'What do you want to do?',
+    choices: [
+      { name: '🚀 Force push current branch to remote',    value: 'force-push' },
+      { name: '🌿 Delete a branch (local + remote)',        value: 'branch' },
+      { name: '💀 Delete the entire remote repository',     value: 'repo' },
+      new Separator(),
+      { name: '❌ Exit (nothing will change)',              value: 'exit' },
+    ],
+  });
+
+  if (action === 'exit')        return;
+  if (action === 'force-push')  await doForcePush();
+  if (action === 'branch')      await doDeleteBranch(null);
+  if (action === 'repo')        await doDeleteRepo();
+}
+
+// ── Commander registration ────────────────────────────────────────────────────
 export default function registerNuke(program) {
   program.command('nuke')
     .description('💣 Nuclear options — force push, delete branch, or delete remote repo.')
@@ -165,31 +188,10 @@ export default function registerNuke(program) {
     .option('--repo',             '💀 Delete the entire remote GitHub repository')
     .action(async (opts) => {
       await ensureRepo();
-
-      // ── Flag-based invocation ──────────────────────────────────────────────
       if (opts.forcePush)     { await doForcePush();               return; }
       if (opts.branch)        { await doDeleteBranch(opts.branch);  return; }
       if (opts.deleteBranch)  { await doDeleteBranch(null);         return; }
       if (opts.repo)          { await doDeleteRepo();               return; }
-
-      // ── Interactive mode ───────────────────────────────────────────────────
-      console.log(chalk.red.bold('\n💣 Nuclear Options\n'));
-      console.log(chalk.gray('  Use these carefully — most actions are irreversible.\n'));
-
-      const action = await select({
-        message: 'What do you want to do?',
-        choices: [
-          { name: '🚀 Force push current branch to remote',    value: 'force-push' },
-          { name: '🌿 Delete a branch (local + remote)',        value: 'branch' },
-          { name: '💀 Delete the entire remote repository',     value: 'repo' },
-          new Separator(),
-          { name: '❌ Exit (nothing will change)',              value: 'exit' },
-        ],
-      });
-
-      if (action === 'exit')        return;
-      if (action === 'force-push')  await doForcePush();
-      if (action === 'branch')      await doDeleteBranch(null);
-      if (action === 'repo')        await doDeleteRepo();
+      await runNuke();
     });
 }
